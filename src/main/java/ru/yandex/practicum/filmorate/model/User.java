@@ -21,8 +21,8 @@ public class User {
     @NotBlank
     private String login;
     private String name;
-    @NotNull
-    @NotBlank
+//    @NotNull
+//    @NotBlank
     @Past
     private LocalDate birthday;
 }
