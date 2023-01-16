@@ -5,6 +5,7 @@ import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.User;
 
+import javax.validation.Valid;
 import java.time.LocalDate;
 import java.util.HashMap;
 import java.util.Map;
@@ -13,19 +14,19 @@ import java.util.Map;
 @RestController
 @RequestMapping("/users")
 public class UserController {
-    private final Map<Integer, User> users = new HashMap<>();
-    private long id = 1;
+    private final Map<Long, User> users = new HashMap<>();
+    private Long id = 1L;
 
     @GetMapping()
-    public Map<Integer, User> findAll() {
+    public Map<Long, User> findAll() {
         return users;
     }
 
     @PostMapping()
-    public User create(@RequestBody User user) {
+    public User create(@Valid @RequestBody User user) {
         if (isValid(user)) {
             user.setId(id);
-            users.put((int) id, user);
+            users.put(id, user);
             log.debug("Пользователь с логином {} успешно создан", user.getLogin());
             id++;
         }
@@ -33,9 +34,9 @@ public class UserController {
     }
 
     @PutMapping()
-    public User update(@RequestBody User user) {
+    public User update(@Valid @RequestBody User user) {
         if (isValid(user)) {
-            users.put((int) user.getId(), user);
+            users.put(user.getId(), user);
             log.debug("Пользователь с логином {} успешно изменён", user.getLogin());
         }
         return user;
