@@ -16,12 +16,12 @@ public class User {
     //@NotBlank
     @Email
     private String email;
-    //@NotNull
-    //@NotBlank
+
+    @NotBlank
     private String login;
     private String name;
     //    @NotNull
-//    @NotBlank
-    @Past
+    //@NotBlank
+    @Past(message = "День рождения не может быть в будущем")
     private LocalDate birthday;
 }

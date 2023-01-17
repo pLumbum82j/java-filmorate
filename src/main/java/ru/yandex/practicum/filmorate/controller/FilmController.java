@@ -2,30 +2,35 @@ package ru.yandex.practicum.filmorate.controller;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
+import ru.yandex.practicum.filmorate.exception.FilmUnknownException;
+import ru.yandex.practicum.filmorate.exception.UserUnknownException;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 @Slf4j
 @RestController
 @RequestMapping("/films")
 public class FilmController {
-    private final Map<Integer, Film> films = new HashMap<>();
-    private long id = 1;
+    private final Map<Long, Film> films = new HashMap<>();
+    private Long id = 1L;
 
     @GetMapping()
-    public Map<Integer, Film> findAll() {
-        return films;
+    public List<Film> findAll() {
+        log.debug("Получен запрос на список фильмов");
+        return new ArrayList<>(films.values());
     }
 
     @PostMapping()
     public Film create(@RequestBody Film film) {
-        if(isValid(film)) {
+        if (isValid(film)) {
             film.setId(id);
-            films.put((int) id, film);
+            films.put(id, film);
             log.debug("Фильм {} создан", film.getName());
             id++;
         }
@@ -34,8 +39,12 @@ public class FilmController {
 
     @PutMapping()
     public Film update(@RequestBody Film film) {
-        if(isValid(film)) {
-            films.put((int) film.getId(), film);
+        if (!films.containsKey(film.getId())) {
+            log.debug("Фильм с указанным ID {} - не существует", film.getId());
+            throw new FilmUnknownException("Фильм с ID" + film.getId() + " не существует");
+        }
+        if (isValid(film)) {
+            films.put(film.getId(), film);
             log.debug("Фильм {} изменён", film.getName());
         }
         return film;

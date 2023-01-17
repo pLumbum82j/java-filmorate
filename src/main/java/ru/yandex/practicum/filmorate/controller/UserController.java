@@ -20,28 +20,33 @@ public class UserController {
     private final Map<Long, User> users = new HashMap<>();
     private Long id = 1L;
 
+    private Long generatorId(){
+        return id++;
+    }
+
     @GetMapping()
     public List<User> findAll() {
+        log.debug("Получен запрос на список пользоваталей");
         return new ArrayList<>(users.values());
     }
 
     @PostMapping()
-    public User create(@RequestBody User user) {
+    public User create(@RequestBody @Valid User user) {
         if (isValid(user)) {
             if ((user.getName() == null) || (user.getName().isBlank())) {
                 user.setName(user.getLogin());
                 log.debug("Имя для отображения пустое — в таком случае будет использован логин");
             }
-            user.setId(id);
-            users.put(id, user);
+            user.setId(generatorId());
+            users.put(user.getId(), user);
             log.debug("Пользователь с логином {} успешно создан", user.getLogin());
-            id++;
+            //id++;
         }
         return user;
     }
 
     @PutMapping()
-    public User update(@RequestBody User user) {
+    public User update(@RequestBody @Valid User user) {
         if (!users.containsKey(user.getId())) {
             log.debug("Пользователя с указанным ID {} - не существует", user.getId());
             throw new UserUnknownException("Пользователь с ID" + user.getId() + " не существует");
@@ -62,12 +67,9 @@ public class UserController {
         } else if (user.getLogin().isBlank() || user.getLogin() == null || user.getLogin().contains(" ")) {
             log.debug("Логин пустой или содержит пробелы");
             throw new ValidationException("Логин не может быть пустым и содержать пробелы");
-//        } else if (user.getName() == null || user.getName().isEmpty()) {
-//            user.setName(user.getLogin());
-//            log.debug("Имя для отображения пустое — в таком случае будет использован логин");
-        } else if (user.getBirthday().isAfter(LocalDate.now())) {
-            log.debug("Дата рождения пользователя превышает текущую дату");
-            throw new ValidationException("Дата рождения не может быть в будущем.");
+//        } else if (user.getBirthday().isAfter(LocalDate.now())) {
+//            log.debug("Дата рождения пользователя превышает текущую дату");
+//            throw new ValidationException("Дата рождения не может быть в будущем.");
         } else {
             return true;
         }
