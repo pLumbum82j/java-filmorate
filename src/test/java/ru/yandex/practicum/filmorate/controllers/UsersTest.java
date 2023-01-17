@@ -34,8 +34,8 @@ public class UsersTest {
         User userValue = null;
 
         userController.create(testUser);
-        Map<Long, User> userMap = userController.findAll();
-        for (User user : userMap.values()) {
+        List<User> userMap = userController.findAll();
+        for (User user : userMap) {
             userValue = user;
         }
 
