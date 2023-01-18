@@ -12,16 +12,13 @@ import java.time.LocalDate;
 @Builder
 public class User {
     private Long id;
-    // @NotNull
-    //@NotBlank
-    @Email
+//    @Email(message = "Не корректный адрес электронной почты")
+//    @NotBlank(message = "Поле email не может быть пустым")
     private String email;
-
-    @NotBlank
+//    @NotBlank(message = "Поле Login не может быть пустым")
     private String login;
     private String name;
-    //    @NotNull
-    //@NotBlank
-    @Past(message = "День рождения не может быть в будущем")
+//    @Past(message = "День рождения не может быть в будущем")
+//    @NotNull(message = "День рождение не может быть пустым")
     private LocalDate birthday;
 }
