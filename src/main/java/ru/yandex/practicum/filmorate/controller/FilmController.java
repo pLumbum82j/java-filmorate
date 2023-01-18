@@ -51,11 +51,11 @@ public class FilmController {
      */
     @PostMapping()
     public Film create(@Valid @RequestBody Film film) {
-        if (isValid(film)) {
+ //       if (isValid(film)) {
             film.setId(generatorId());
             films.put(film.getId(), film);
             log.debug("Фильм {} создан", film.getName());
-        }
+  //      }
         return film;
     }
 
@@ -66,15 +66,15 @@ public class FilmController {
      * @return изменённый объект фильма
      */
     @PutMapping()
-    public Film update(@RequestBody Film film) {
+    public Film update(@Valid @RequestBody Film film) {
         if (!films.containsKey(film.getId())) {
             log.warn("Фильм с указанным ID {} - не существует", film.getId());
             throw new FilmUnknownException("Фильм с ID " + film.getId() + " не существует");
         }
-        if (isValid(film)) {
+ //       if (isValid(film)) {
             films.put(film.getId(), film);
             log.debug("Фильм {} изменён", film.getName());
-        }
+ //       }
         return film;
     }
 
@@ -91,12 +91,12 @@ public class FilmController {
         } else if (film.getDescription().length() > 200) {
             log.warn("Максимальная длина описания более 200 символов");
             throw new ValidationException("Максимальная длина описания фильма имеет более 200 символов");
-        } else if (film.getReleaseDate().isBefore(LocalDate.of(1895, 12, 28))) {
-            log.warn("Дата релиза раньше 28 декабря 1895 года");
-            throw new ValidationException("Дата релиза не может быть раньше 28 декабря 1895 года");
+//        } else if (film.getReleaseDate().isBefore(LocalDate.of(1895, 12, 28))) {
+//            log.warn("Дата релиза раньше 28 декабря 1895 года");
+//            throw new ValidationException("Дата релиза не может быть раньше 28 декабря 1895 года");
         } else if (film.getDuration() <= 0) {
-            log.warn("Продолжительность фильма отрицательная");
-            throw new ValidationException("Продолжительность фильма не может быть отрицательной");
+            log.warn("Продолжительность фильма нулевая или отрицательная");
+            throw new ValidationException("Продолжительность фильма не может быть отрицательной или равная нулю");
         } else {
             return true;
         }

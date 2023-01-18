@@ -9,7 +9,6 @@ import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.User;
 
 import java.time.LocalDate;
-import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -136,7 +135,7 @@ public class UsersTestController {
                 .name("Olga")
                 .birthday(LocalDate.of(2012, 12, 12))
                 .build();
-        User userValue =  userController.update(testUser2);
+        User userValue = userController.update(testUser2);
 
         assertEquals(userValue, testUser2);
     }
