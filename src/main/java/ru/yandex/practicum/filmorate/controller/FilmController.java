@@ -91,9 +91,9 @@ public class FilmController {
         } else if (film.getDescription().length() > 200) {
             log.warn("Максимальная длина описания более 200 символов");
             throw new ValidationException("Максимальная длина описания фильма имеет более 200 символов");
-//        } else if (film.getReleaseDate().isBefore(LocalDate.of(1895, 12, 28))) {
-//            log.warn("Дата релиза раньше 28 декабря 1895 года");
-//            throw new ValidationException("Дата релиза не может быть раньше 28 декабря 1895 года");
+        } else if (film.getReleaseDate().isBefore(LocalDate.of(1895, 12, 28))) {
+            log.warn("Дата релиза раньше 28 декабря 1895 года");
+            throw new ValidationException("Дата релиза не может быть раньше 28 декабря 1895 года");
         } else if (film.getDuration() <= 0) {
             log.warn("Продолжительность фильма нулевая или отрицательная");
             throw new ValidationException("Продолжительность фильма не может быть отрицательной или равная нулю");
