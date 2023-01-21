@@ -19,6 +19,6 @@ public class Film {
     private String description;
     @MovieBirthday(message = "Дата релиза раньше 28 декабря 1895 года")
     private LocalDate releaseDate;
-    //@Min(value = 1, message = "Продолжительность фильма нулевая или отрицательная")
+    @Min(value = 1, message = "Продолжительность фильма нулевая или отрицательная")
     private long duration;
 }
