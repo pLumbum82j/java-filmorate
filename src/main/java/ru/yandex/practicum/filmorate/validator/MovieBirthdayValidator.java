@@ -1,18 +1,20 @@
 package ru.yandex.practicum.filmorate.validator;
 
+import org.springframework.stereotype.Service;
+
 import javax.validation.ConstraintValidator;
 import javax.validation.ConstraintValidatorContext;
 import java.time.LocalDate;
 
-public class MovieBirthdayValidator implements ConstraintValidator<MovieBirthday, LocalDate>{
+@Service
+public class MovieBirthdayValidator implements ConstraintValidator<MovieBirthday, LocalDate> {
+    private LocalDate data;
 
-
-    @Override
-    public boolean isValid(LocalDate localDate, ConstraintValidatorContext constraintValidatorContext) {
-        if (localDate.isBefore(LocalDate.of(1895, 12, 28))) {
-            return false;
-        }
-        return true;
+    public void initialize(MovieBirthday annotation) {
+        data = LocalDate.parse(annotation.value());
     }
 
+    public boolean isValid(LocalDate value, ConstraintValidatorContext context) {
+        return (value == null) || value.isAfter(data);
+    }
 }

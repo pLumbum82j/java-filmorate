@@ -14,9 +14,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 @SpringBootTest
 public class UsersTestController {
-//    Поля для тестов валидации по аннотации
-//    private Validator validator;
-//    String messageException = null;
+
 
     User testUser;
     UserController userController = new UserController();
@@ -30,8 +28,6 @@ public class UsersTestController {
                 .birthday(LocalDate.of(2011, 11, 11))
                 .build();
 
-//        ValidatorFactory factory = Validation.buildDefaultValidatorFactory();
-//        validator = factory.getValidator();
     }
 
     @Test
@@ -139,18 +135,4 @@ public class UsersTestController {
 
         assertEquals(userValue, testUser2);
     }
-
-
-//    Тест валидации по аннотации
-//    @Test
-//    public void testtsts() {
-//        testUser.setEmail("");
-//
-//        Set<ConstraintViolation<User>> violations = validator.validate(testUser);
-//        for (ConstraintViolation<User> viol : violations) {
-//            messageex = viol.getMessage();
-//        }
-//
-//        assertEquals(messageex, "Поле email не может быть пустым");
-//    }
 }
