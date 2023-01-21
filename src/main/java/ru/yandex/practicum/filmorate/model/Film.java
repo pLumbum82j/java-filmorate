@@ -15,10 +15,10 @@ public class Film {
     private Long id;
     @NotBlank
     private String name;
-    @Max(value = 200, message = "Максимальная длина описания более 200 символов")
+    //@Max(value = 200, message = "Максимальная длина описания более 200 символов")
     private String description;
     @MovieBirthday(message = "Дата релиза раньше 28 декабря 1895 года")
     private LocalDate releaseDate;
-    @Min(value = 1, message = "Продолжительность фильма нулевая или отрицательная")
+    //@Min(value = 1, message = "Продолжительность фильма нулевая или отрицательная")
     private long duration;
 }
