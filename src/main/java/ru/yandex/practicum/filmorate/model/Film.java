@@ -8,12 +8,15 @@ import javax.validation.constraints.Min;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.Size;
 import java.time.LocalDate;
+import java.util.HashSet;
+import java.util.Set;
+
+import static ru.yandex.practicum.filmorate.Constants.FIRST_RELEASE;
 
 @Data
 @Builder
 public class Film {
-    final String FIRST_RELEASE = "1895-12-28";
-
+    private final Set<Long> likes = new HashSet<>();
     private Long id;
     @NotBlank(message = "Название фильма не может быть пустым")
     private String name;
@@ -23,4 +26,5 @@ public class Film {
     private LocalDate releaseDate;
     @Min(value = 1, message = "Продолжительность фильма нулевая или отрицательная")
     private long duration;
+
 }
