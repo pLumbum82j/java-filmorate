@@ -1,12 +1,9 @@
-package ru.yandex.practicum.filmorate.storage;
+package ru.yandex.practicum.filmorate.storage.film;
 
 import org.springframework.stereotype.Component;
-import ru.yandex.practicum.filmorate.exception.FilmUnknownException;
 import ru.yandex.practicum.filmorate.model.Film;
 
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 @Component
@@ -33,6 +30,10 @@ public class InMemoryFilmStorage implements FilmStorage {
         return films;
     }
 
+    public Film findFilmById(Long id) {
+        return films.get(id);
+    }
+
     /**
      * Метод (эндпоинт) создания фильма
      *
@@ -55,6 +56,10 @@ public class InMemoryFilmStorage implements FilmStorage {
 
     public Film update(Film film) {
         return films.put(film.getId(), film);
+    }
+
+    public boolean isContainFilmId(Long id) {
+        return films.containsKey(id);
     }
 
 

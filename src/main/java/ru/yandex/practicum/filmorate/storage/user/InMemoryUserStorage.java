@@ -1,4 +1,4 @@
-package ru.yandex.practicum.filmorate.storage;
+package ru.yandex.practicum.filmorate.storage.user;
 
 import org.springframework.stereotype.Component;
 import ru.yandex.practicum.filmorate.model.User;
@@ -31,6 +31,10 @@ public class InMemoryUserStorage implements UserStorage {
         return users;
     }
 
+    public User findUserById(Long id) {
+        return users.get(id);
+    }
+
     /**
      * Метод (эндпоинт) создания пользователя
      *
@@ -53,4 +57,8 @@ public class InMemoryUserStorage implements UserStorage {
     public User update(User user) {
         return users.put(user.getId(), user);
     }
+
+//    public boolean isContainUserId(Long id) {
+//        return users.containsKey(id);
+//    }
 }

@@ -3,8 +3,10 @@ package ru.yandex.practicum.filmorate.service;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.exception.FilmUnknownException;
+import ru.yandex.practicum.filmorate.exception.UserUnknownException;
 import ru.yandex.practicum.filmorate.model.Film;
-import ru.yandex.practicum.filmorate.storage.FilmStorage;
+import ru.yandex.practicum.filmorate.model.User;
+import ru.yandex.practicum.filmorate.storage.film.FilmStorage;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -28,6 +30,13 @@ public class FilmService {
         log.debug("Получен запрос на список фильмов");
         return new ArrayList<>(filmStorage.getFilms().values());
     }
+    public Film findFilmById(Long id){
+        if (!filmStorage.isContainFilmId(id)) {
+            log.warn("Фильм с указанным ID {} - не существует", id);
+            throw new FilmUnknownException("Фильм с ID " + id + " не существует");
+        }
+        return filmStorage.findFilmById(id);
+    }
 
     /**
      * Метод (эндпоинт) создания фильма
@@ -48,7 +57,7 @@ public class FilmService {
      * @return изменённый объект фильма
      */
     public Film update(Film film) {
-        if (!filmStorage.getFilms().containsKey(film.getId())) {
+        if (!filmStorage.isContainFilmId(film.getId())) {
             log.warn("Фильм с указанным ID {} - не существует", film.getId());
             throw new FilmUnknownException("Фильм с ID " + film.getId() + " не существует");
         }

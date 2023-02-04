@@ -2,6 +2,7 @@ package ru.yandex.practicum.filmorate.controller;
 
 import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.filmorate.model.Film;
+import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.service.FilmService;
 
 import javax.validation.Valid;
@@ -23,6 +24,10 @@ public class FilmController {
     public List<Film> getFilms() {
         return filmService.getFilms();
     }
+    @GetMapping("/{id}")
+    public Film getUsers(@PathVariable("id") Long id) {
+        return filmService.findFilmById(id);
+    }
     @PostMapping()
     public Film create(@Valid @RequestBody Film film) {
         return filmService.create(film);
@@ -31,5 +36,6 @@ public class FilmController {
     public Film update(@Valid @RequestBody Film film) {
         return filmService.update(film);
     }
+
 
 }

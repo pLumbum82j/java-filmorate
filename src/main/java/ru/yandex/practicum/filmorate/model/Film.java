@@ -16,7 +16,7 @@ import static ru.yandex.practicum.filmorate.Constants.FIRST_RELEASE;
 @Data
 @Builder
 public class Film {
-    private final Set<Long> likes = new HashSet<>();
+
     private Long id;
     @NotBlank(message = "Название фильма не может быть пустым")
     private String name;
@@ -26,5 +26,5 @@ public class Film {
     private LocalDate releaseDate;
     @Min(value = 1, message = "Продолжительность фильма нулевая или отрицательная")
     private long duration;
-
+    private final Set<Long> likes = new HashSet<>();
 }

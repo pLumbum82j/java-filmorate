@@ -3,14 +3,18 @@ package ru.yandex.practicum.filmorate.service;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import ru.yandex.practicum.filmorate.exception.UserIsAlreadyFriendException;
 import ru.yandex.practicum.filmorate.exception.UserUnknownException;
+import ru.yandex.practicum.filmorate.exception.UsersAreNotFriendsException;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.User;
-import ru.yandex.practicum.filmorate.storage.UserStorage;
+import ru.yandex.practicum.filmorate.storage.user.UserStorage;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -32,6 +36,44 @@ public class UserService {
     public List<User> getUsers() {
         log.debug("Получен запрос на список пользователей");
         return new ArrayList<>(userStorage.getUsers().values());
+    }
+
+    public User findUserById(Long id) {
+        isContainUserId(id);
+        log.debug("Получен запрос на поиск пользователя {}", id);
+        return userStorage.findUserById(id);
+    }
+
+    public List<User> getUserFriends(Long id) {
+        isContainUserId(id);
+        log.debug("Получен запрос на список друзей пользователя {}", id);
+        return userStorage.findUserById(id)
+                .getFriendsList()
+                .stream()
+                .map(userStorage::findUserById)
+                .collect(Collectors.toList());
+    }
+
+    public List<User> getListOfCommonFriends(long firstId, long secondId) {
+        isContainUserId(firstId);
+        isContainUserId(secondId);
+//        if (!isFriendshipCheck(firstId, secondId)) {
+//            log.debug("Пользователь с ID {} не является другом пользователя ID {}", firstId, secondId);
+//            throw new UsersAreNotFriendsException("Пользователи не являются друзьями");
+//        }
+        log.debug("Получен запрос на список общих друзей пользователей с ID {} и ID {}", firstId, secondId);
+        List<User> friendsFirstUser = userStorage.findUserById(firstId)
+                .getFriendsList()
+                .stream()
+                .map(userStorage::findUserById)
+                .collect(Collectors.toList());
+        List<User> friendsSecondUser = userStorage.findUserById(secondId)
+                .getFriendsList()
+                .stream()
+                .map(userStorage::findUserById)
+                .collect(Collectors.toList());
+
+        return friendsFirstUser.stream().filter(friendsSecondUser::contains).collect(Collectors.toList());
     }
 
     /**
@@ -59,16 +101,43 @@ public class UserService {
      * @return изменённый объект пользователя
      */
     public User update(User user) {
-        if (!userStorage.getUsers().containsKey(user.getId())) {
-            log.warn("Пользователя с указанным ID {} - не существует", user.getId());
-            throw new UserUnknownException("Пользователь с ID " + user.getId() + " не существует");
-        }
+        isContainUserId(user.getId());
         if (isValid(user)) {
             userStorage.update(user);
             log.debug("Пользователь с логином {} успешно изменён", user.getLogin());
         }
         return user;
     }
+
+    public void addFriend(Long firstId, Long secondId) {
+        isContainUserId(firstId);
+        isContainUserId(secondId);
+        if (isFriendshipCheck(firstId, secondId)) {
+            log.debug("Пользователь с ID {} уже является другом пользователя ID {}", firstId, secondId);
+            throw new UserIsAlreadyFriendException("Пользователи уже являются друзьями");
+        }
+        userStorage.findUserById(firstId).getFriendsList().add(secondId);
+        userStorage.findUserById(secondId).getFriendsList().add(firstId);
+        userStorage.update(userStorage.findUserById(firstId));
+        userStorage.update(userStorage.findUserById(secondId));
+        log.debug("Теперь пользователь ID {} является другом пользователя ID {}", firstId, secondId);
+
+    }
+
+    public void deleteFriend(Long firstId, Long secondId) {
+        isContainUserId(firstId);
+        isContainUserId(secondId);
+        if (!isFriendshipCheck(firstId, secondId)) {
+            log.debug("Пользователь с ID {} не является другом пользователя ID {}", firstId, secondId);
+            throw new UsersAreNotFriendsException("Пользователи не являются друзьями");
+        }
+        userStorage.findUserById(firstId).getFriendsList().remove(secondId);
+        userStorage.findUserById(secondId).getFriendsList().remove(firstId);
+        userStorage.update(userStorage.findUserById(firstId));
+        userStorage.update(userStorage.findUserById(secondId));
+        log.debug("Теперь пользователь ID {} не является другом пользователя ID {}", firstId, secondId);
+    }
+
 
     /**
      * Метод проверки валидации пользователя
@@ -90,4 +159,16 @@ public class UserService {
             return true;
         }
     }
+
+    private void isContainUserId(long id) {
+        if (!userStorage.getUsers().containsKey(id)) {
+            log.warn("Пользователя с указанным ID {} - не существует", id);
+            throw new UserUnknownException("Пользователь с ID " + id + " не существует");
+        }
+    }
+
+    private boolean isFriendshipCheck(Long firstId, Long secondId) {
+        return userStorage.getUsers().get(firstId).getFriendsList().contains(secondId);
+    }
+
 }
