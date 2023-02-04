@@ -1,24 +1,31 @@
 package ru.yandex.practicum.filmorate.service;
 
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.exception.FilmUnknownException;
-import ru.yandex.practicum.filmorate.exception.UserUnknownException;
+import ru.yandex.practicum.filmorate.exception.IncorrectParameterException;
 import ru.yandex.practicum.filmorate.model.Film;
-import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.storage.film.FilmStorage;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
+
+import static ru.yandex.practicum.filmorate.Constants.DESCENDING_ORDER;
+import static ru.yandex.practicum.filmorate.Constants.SORTS;
 
 @Slf4j
 @Service
 public class FilmService {
 
     FilmStorage filmStorage;
+    UserService userService;
 
-    public FilmService(FilmStorage filmStorage) {
+    @Autowired
+    public FilmService(FilmStorage filmStorage, UserService userService) {
         this.filmStorage = filmStorage;
+        this.userService = userService;
     }
 
     /**
@@ -30,11 +37,9 @@ public class FilmService {
         log.debug("Получен запрос на список фильмов");
         return new ArrayList<>(filmStorage.getFilms().values());
     }
-    public Film findFilmById(Long id){
-        if (!filmStorage.isContainFilmId(id)) {
-            log.warn("Фильм с указанным ID {} - не существует", id);
-            throw new FilmUnknownException("Фильм с ID " + id + " не существует");
-        }
+
+    public Film findFilmById(Long id) {
+        ContainFilmId(id);
         return filmStorage.findFilmById(id);
     }
 
@@ -50,6 +55,22 @@ public class FilmService {
         return film;
     }
 
+    public Film addLike(Long filmId, Long userId) {
+        ContainFilmId(filmId);
+        userService.ContainUserId(userId);
+        log.debug("Получен запрос на добавления Like пользователя с ID {} в фильм с ID {}", userId, filmId);
+        filmStorage.getFilms().get(filmId).getLikes().add(userId);
+        return filmStorage.findFilmById(filmId);
+    }
+
+    public Film deleteLike(Long filmId, Long userId) {
+        ContainFilmId(filmId);
+        userService.ContainUserId(userId);
+        log.debug("Получен запрос на удаления Like пользователя с ID {} в фильм с ID {}", userId, filmId);
+        filmStorage.getFilms().get(filmId).getLikes().remove(userId);
+        return filmStorage.findFilmById(filmId);
+    }
+
     /**
      * Метод (эндпоинт) обновления фильма
      *
@@ -57,15 +78,44 @@ public class FilmService {
      * @return изменённый объект фильма
      */
     public Film update(Film film) {
-        if (!filmStorage.isContainFilmId(film.getId())) {
-            log.warn("Фильм с указанным ID {} - не существует", film.getId());
-            throw new FilmUnknownException("Фильм с ID " + film.getId() + " не существует");
-        }
+        ContainFilmId(film.getId());
         filmStorage.update(film);
         log.debug("Фильм {} изменён", film.getName());
 
         return film;
     }
 
+    public List<Film> getPopularFilms(Integer count, String sort) {
+        if (!SORTS.contains(sort)) {
+            throw new IncorrectParameterException("Некорректное значение sort, введите: asc или desc");
+        }
+        if (count <= 0) {
+            throw new IncorrectParameterException("Значение count не может быть меньше 1");
+        }
+        log.debug("Получен запрос на список из {} популярных фильмов", count);
+        return filmStorage.getFilms()
+                .values()
+                .stream()
+                .sorted((p0, p1) -> compare(p0, p1, sort))
+                .limit(count)
+                .collect(Collectors.toList());
+    }
+
+
+
+    public void ContainFilmId(Long id) {
+        if (!filmStorage.getFilms().containsKey(id)) {
+            log.warn("Фильм с указанным ID {} - не существует", id);
+            throw new FilmUnknownException("Фильм с ID " + id + " не существует");
+        }
+    }
+
+    private int compare(Film f0, Film f1, String sort) {
+        int result = f0.getLikes().size() - (f1.getLikes().size());
+        if (sort.equals(DESCENDING_ORDER)) {
+            result = -1 * result;
+        }
+        return result;
+    }
 
 }

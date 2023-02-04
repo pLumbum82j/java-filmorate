@@ -58,9 +58,5 @@ public class InMemoryFilmStorage implements FilmStorage {
         return films.put(film.getId(), film);
     }
 
-    public boolean isContainFilmId(Long id) {
-        return films.containsKey(id);
-    }
-
 
 }

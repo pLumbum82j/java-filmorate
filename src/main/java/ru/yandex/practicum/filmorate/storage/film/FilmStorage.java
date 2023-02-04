@@ -13,5 +13,4 @@ public interface FilmStorage {
 
     Film findFilmById(Long id);
 
-    boolean isContainFilmId(Long id);
 }
