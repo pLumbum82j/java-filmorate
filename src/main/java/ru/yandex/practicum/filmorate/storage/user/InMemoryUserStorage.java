@@ -58,7 +58,7 @@ public class InMemoryUserStorage implements UserStorage {
         return users.put(user.getId(), user);
     }
 
-//    public boolean isContainUserId(Long id) {
-//        return users.containsKey(id);
-//    }
+    public boolean isContainUserId(Long id) {
+        return !users.containsKey(id);
+    }
 }

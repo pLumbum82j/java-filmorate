@@ -159,7 +159,7 @@ public class UserService {
         }
     }
 
-    void ContainUserId(long id) {
+    private void ContainUserId(long id) {
         if (!userStorage.getUsers().containsKey(id)) {
             log.warn("Пользователя с указанным ID {} - не существует", id);
             throw new UserUnknownException("Пользователь с ID " + id + " не существует");

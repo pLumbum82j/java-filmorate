@@ -13,5 +13,5 @@ public interface UserStorage {
 
     User findUserById(Long id);
 
-//    boolean isContainUserId(Long id);
+    boolean isContainUserId(Long id);
 }

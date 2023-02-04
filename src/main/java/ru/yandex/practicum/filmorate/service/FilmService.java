@@ -5,8 +5,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.exception.FilmUnknownException;
 import ru.yandex.practicum.filmorate.exception.IncorrectParameterException;
+import ru.yandex.practicum.filmorate.exception.UserUnknownException;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.storage.film.FilmStorage;
+import ru.yandex.practicum.filmorate.storage.user.UserStorage;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -20,12 +22,12 @@ import static ru.yandex.practicum.filmorate.Constants.SORTS;
 public class FilmService {
 
     FilmStorage filmStorage;
-    UserService userService;
+    UserStorage userStorage;
 
     @Autowired
-    public FilmService(FilmStorage filmStorage, UserService userService) {
+    public FilmService(FilmStorage filmStorage, UserStorage userStorage) {
         this.filmStorage = filmStorage;
-        this.userService = userService;
+        this.userStorage = userStorage;
     }
 
     /**
@@ -57,7 +59,10 @@ public class FilmService {
 
     public Film addLike(Long filmId, Long userId) {
         ContainFilmId(filmId);
-        userService.ContainUserId(userId);
+        if (userStorage.isContainUserId(userId)) {
+            log.warn("Пользователя с указанным ID {} - не существует", userId);
+            throw new UserUnknownException("Пользователь с ID " + userId + " не существует");
+        }
         log.debug("Получен запрос на добавления Like пользователя с ID {} в фильм с ID {}", userId, filmId);
         filmStorage.getFilms().get(filmId).getLikes().add(userId);
         return filmStorage.findFilmById(filmId);
@@ -65,7 +70,10 @@ public class FilmService {
 
     public Film deleteLike(Long filmId, Long userId) {
         ContainFilmId(filmId);
-        userService.ContainUserId(userId);
+        if (userStorage.isContainUserId(userId)) {
+            log.warn("Пользователя с указанным ID {} - не существует", userId);
+            throw new UserUnknownException("Пользователь с ID " + userId + " не существует");
+        }
         log.debug("Получен запрос на удаления Like пользователя с ID {} в фильм с ID {}", userId, filmId);
         filmStorage.getFilms().get(filmId).getLikes().remove(userId);
         return filmStorage.findFilmById(filmId);
