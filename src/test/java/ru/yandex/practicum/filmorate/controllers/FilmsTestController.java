@@ -5,6 +5,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 import ru.yandex.practicum.filmorate.controller.FilmController;
 import ru.yandex.practicum.filmorate.exception.FilmUnknownException;
+import ru.yandex.practicum.filmorate.exception.IncorrectParameterException;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.service.FilmService;
@@ -16,6 +17,9 @@ import javax.validation.Validation;
 import javax.validation.Validator;
 import javax.validation.ValidatorFactory;
 import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -26,16 +30,19 @@ public class FilmsTestController {
     String messageException;
     Film testFilm;
     FilmController filmController;
+    User testUser;
+    User testUser2;
+
 
     @BeforeEach
     public void beforeEach() {
-        User testUser = User.builder()
+        testUser = User.builder()
                 .email("dinozavr@yandex.ru")
                 .login("Dino")
                 .name("Pasha")
                 .birthday(LocalDate.of(2011, 11, 11))
                 .build();
-        User testUser2 = User.builder()
+        testUser2 = User.builder()
                 .email("zzzzavr@mail.ru")
                 .login("Zoozavr")
                 .name("Anton")
@@ -151,5 +158,64 @@ public class FilmsTestController {
 
         assertEquals(filmValue, testFilm2);
     }
+
+    @Test
+    public void shouldAddLikeFilm() {
+        filmController.create(testFilm);
+        Set<Long> testLikes = new HashSet<>();
+
+        assertEquals(testLikes, filmController.getFilmById(testFilm.getId()).getLikes());
+
+        filmController.addLike(testUser.getId(), testFilm.getId());
+        testLikes.add(testUser.getId());
+
+        assertEquals(testLikes, filmController.getFilmById(testFilm.getId()).getLikes());
+    }
+
+    @Test
+    public void shouldDeleteLikeFilm() {
+        filmController.create(testFilm);
+        Set<Long> testLikes = new HashSet<>();
+        testLikes.add(testUser.getId());
+        testFilm.getLikes().add(testUser.getId());
+
+        assertEquals(testLikes, filmController.getFilmById(testFilm.getId()).getLikes());
+
+        filmController.deleteLike(testUser.getId(), testFilm.getId());
+        testLikes.remove(testUser.getId());
+
+        assertEquals(testLikes, filmController.getFilmById(testFilm.getId()).getLikes());
+    }
+
+    @Test
+    public void shouldBringBackPopularFilm() {
+        Film testFilm2 = Film.builder()
+                .name("Яндекс и новые приключения")
+                .description("GPT-Chat и его фишки")
+                .releaseDate(LocalDate.of(2023, 1, 20))
+                .duration(140L)
+                .build();
+        filmController.create(testFilm);
+        filmController.create(testFilm2);
+        filmController.addLike(testFilm.getId(), testUser.getId());
+        filmController.addLike(testFilm.getId(), testUser2.getId());
+        filmController.addLike(testFilm2.getId(), testUser2.getId());
+        List<Film> testList = new ArrayList<>();
+        testList.add(testFilm);
+        testList.add(testFilm2);
+
+        assertEquals(testList, filmController.getPopularFilms(2, "desc"));
+
+        IncorrectParameterException exception = assertThrows(IncorrectParameterException.class, () -> filmController.getPopularFilms(2, "abcd"));
+
+        assertEquals("Некорректное значение sort, введите: asc или desc", exception.getMessage());
+
+        exception = assertThrows(IncorrectParameterException.class, () -> filmController.getPopularFilms(0, "desc"));
+
+        assertEquals("Значение count не может быть меньше 1", exception.getMessage());
+
+
+    }
+
 }
 

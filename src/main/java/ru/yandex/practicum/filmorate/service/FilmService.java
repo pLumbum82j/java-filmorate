@@ -104,7 +104,7 @@ public class FilmService {
         return filmStorage.getFilms()
                 .values()
                 .stream()
-                .sorted((p0, p1) -> compare(p0, p1, sort))
+                .sorted((f0, f1) -> compare(f0, f1, sort))
                 .limit(count)
                 .collect(Collectors.toList());
     }
