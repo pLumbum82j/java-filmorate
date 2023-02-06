@@ -30,8 +30,9 @@ public class FilmService {
         this.userStorage = userStorage;
     }
 
+
     /**
-     * Метод (эндпоинт) получения списка фильмов
+     * Метод получения списка фильмов
      *
      * @return Список филмьов
      */
@@ -40,59 +41,13 @@ public class FilmService {
         return new ArrayList<>(filmStorage.getFilms().values());
     }
 
-    public Film findFilmById(Long id) {
-        ContainFilmId(id);
-        return filmStorage.findFilmById(id);
-    }
-
     /**
-     * Метод (эндпоинт) создания фильма
+     * Метод получения списка популярных фильмов
      *
-     * @param film Принятый объект фильма по эндпоинту
-     * @return созданный объект фильма
+     * @param count количество фильмов в списке
+     * @param sort  сортировка по убыванию/возрастанию like
+     * @return Список филмьов
      */
-    public Film create(Film film) {
-        filmStorage.create(film);
-        log.debug("Фильм {} создан", film.getName());
-        return film;
-    }
-
-    public Film addLike(Long filmId, Long userId) {
-        ContainFilmId(filmId);
-        if (userStorage.isContainUserId(userId)) {
-            log.warn("Пользователя с указанным ID {} - не существует", userId);
-            throw new UserUnknownException("Пользователь с ID " + userId + " не существует");
-        }
-        log.debug("Получен запрос на добавления Like пользователя с ID {} в фильм с ID {}", userId, filmId);
-        filmStorage.getFilms().get(filmId).getLikes().add(userId);
-        return filmStorage.findFilmById(filmId);
-    }
-
-    public Film deleteLike(Long filmId, Long userId) {
-        ContainFilmId(filmId);
-        if (userStorage.isContainUserId(userId)) {
-            log.warn("Пользователя с указанным ID {} - не существует", userId);
-            throw new UserUnknownException("Пользователь с ID " + userId + " не существует");
-        }
-        log.debug("Получен запрос на удаления Like пользователя с ID {} в фильм с ID {}", userId, filmId);
-        filmStorage.getFilms().get(filmId).getLikes().remove(userId);
-        return filmStorage.findFilmById(filmId);
-    }
-
-    /**
-     * Метод (эндпоинт) обновления фильма
-     *
-     * @param film Принятый объект фильма по эндпоинту
-     * @return изменённый объект фильма
-     */
-    public Film update(Film film) {
-        ContainFilmId(film.getId());
-        filmStorage.update(film);
-        log.debug("Фильм {} изменён", film.getName());
-
-        return film;
-    }
-
     public List<Film> getPopularFilms(Integer count, String sort) {
         if (!SORTS.contains(sort)) {
             throw new IncorrectParameterException("Некорректное значение sort, введите: asc или desc");
@@ -109,8 +64,84 @@ public class FilmService {
                 .collect(Collectors.toList());
     }
 
+    /**
+     * Метод получения фильма по id
+     *
+     * @param id id фильма
+     * @return объект фильма
+     */
+    public Film findFilmById(Long id) {
+        ContainFilmId(id);
+        return filmStorage.findFilmById(id);
+    }
 
+    /**
+     * Метод создания фильма
+     *
+     * @param film принятый объект фильма по эндпоинту
+     * @return созданный объект фильма
+     */
+    public Film create(Film film) {
+        filmStorage.create(film);
+        log.debug("Фильм {} создан", film.getName());
+        return film;
+    }
 
+    /**
+     * Метод добавления Like фильму
+     *
+     * @param filmId id фильма
+     * @param userId id пользователя
+     * @return изменённый объект фильма
+     */
+    public Film addLike(Long filmId, Long userId) {
+        ContainFilmId(filmId);
+        if (userStorage.isContainUserId(userId)) {
+            log.warn("Пользователя с указанным ID {} - не существует", userId);
+            throw new UserUnknownException("Пользователь с ID " + userId + " не существует");
+        }
+        log.debug("Получен запрос на добавления Like пользователя с ID {} в фильм с ID {}", userId, filmId);
+        filmStorage.getFilms().get(filmId).getLikes().add(userId);
+        return filmStorage.findFilmById(filmId);
+    }
+
+    /**
+     * Метод обновления фильма
+     *
+     * @param film Принятый объект фильма по эндпоинту
+     * @return изменённый объект фильма
+     */
+    public Film update(Film film) {
+        ContainFilmId(film.getId());
+        filmStorage.update(film);
+        log.debug("Фильм {} изменён", film.getName());
+
+        return film;
+    }
+
+    /**
+     * Метод удаления Like фильму
+     *
+     * @param filmId id фильма
+     * @param userId id пользователя
+     * @return изменённый объект фильма
+     */
+    public Film deleteLike(Long filmId, Long userId) {
+        ContainFilmId(filmId);
+        if (userStorage.isContainUserId(userId)) {
+            log.warn("Пользователя с указанным ID {} - не существует", userId);
+            throw new UserUnknownException("Пользователь с ID " + userId + " не существует");
+        }
+        log.debug("Получен запрос на удаления Like пользователя с ID {} в фильм с ID {}", userId, filmId);
+        filmStorage.getFilms().get(filmId).getLikes().remove(userId);
+        return filmStorage.findFilmById(filmId);
+    }
+
+    /**
+     * Метод проверки присутсивя фильма на сервере
+     *
+     * @param id id фильма
+     */
     public void ContainFilmId(Long id) {
         if (!filmStorage.getFilms().containsKey(id)) {
             log.warn("Фильм с указанным ID {} - не существует", id);
@@ -118,6 +149,14 @@ public class FilmService {
         }
     }
 
+    /**
+     * Метод сортировки по убыванию/возрастания
+     *
+     * @param f0   фильма №1
+     * @param f1   фильма №2
+     * @param sort сортировка убыванию/возрастания
+     * @return отсортированный элемент
+     */
     private int compare(Film f0, Film f1, String sort) {
         int result = f0.getLikes().size() - (f1.getLikes().size());
         if (sort.equals(DESCENDING_ORDER)) {

@@ -21,12 +21,6 @@ public class InMemoryUserStorage implements UserStorage {
         return id++;
     }
 
-    /**
-     * Метод (эндпоинт) получения списка пользователей
-     *
-     * @return Список пользователей
-     */
-
     public Map<Long, User> getUsers() {
         return users;
     }
@@ -35,25 +29,12 @@ public class InMemoryUserStorage implements UserStorage {
         return users.get(id);
     }
 
-    /**
-     * Метод (эндпоинт) создания пользователя
-     *
-     * @param user Принятый объект пользователя по эндпоинту
-     * @return созданный объект пользователя
-     */
-
     public User create(User user) {
         user.setId(generatorId());
         users.put(user.getId(), user);
         return user;
     }
 
-    /**
-     * Метод (эндпоинт) обновления пользователя
-     *
-     * @param user Принятый объект пользователя по эндпоинту
-     * @return изменённый объект пользователя
-     */
     public User update(User user) {
         return users.put(user.getId(), user);
     }

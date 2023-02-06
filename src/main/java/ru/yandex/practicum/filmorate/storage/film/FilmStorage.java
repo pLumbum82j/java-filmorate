@@ -4,13 +4,39 @@ import ru.yandex.practicum.filmorate.model.Film;
 
 import java.util.Map;
 
+/**
+ * Интерфейс отвечаюзий за поведение объектов Film в памяти
+ */
 public interface FilmStorage {
+
+    /**
+     * Метод получения списка фильмов
+     *
+     * @return Список филмьов
+     */
     Map<Long, Film> getFilms();
 
-    Film create(Film film);
-
-    Film update(Film film);
-
+    /**
+     * Метод получения фильма по id
+     *
+     * @param id id фильма
+     * @return объект фильма
+     */
     Film findFilmById(Long id);
 
+    /**
+     * Метод создания фильма
+     *
+     * @param film принятый объект фильма по эндпоинту
+     * @return созданный объект фильма
+     */
+    Film create(Film film);
+
+    /**
+     * Метод обновления фильма
+     *
+     * @param film Принятый объект фильма по эндпоинту
+     * @return изменённый объект фильма
+     */
+    Film update(Film film);
 }

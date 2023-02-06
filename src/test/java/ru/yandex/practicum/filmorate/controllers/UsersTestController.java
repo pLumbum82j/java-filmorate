@@ -142,7 +142,7 @@ public class UsersTestController {
     }
 
     @Test
-    public void shouldReturnUserById(){
+    public void shouldReturnUserById() {
         User testUserTemp = testUser;
 
         UserUnknownException exception = assertThrows(UserUnknownException.class, () -> userController.getUsersById(1L));
@@ -151,7 +151,7 @@ public class UsersTestController {
 
         userController.create(testUser);
 
-       assertEquals(testUserTemp, userController.getUsersById(testUser.getId()));
+        assertEquals(testUserTemp, userController.getUsersById(testUser.getId()));
     }
 
     @Test
@@ -215,7 +215,7 @@ public class UsersTestController {
     }
 
     @Test
-    public void shouldReturnListOfUsersWhoAreMutualFriends(){
+    public void shouldReturnListOfUsersWhoAreMutualFriends() {
         User testUser3 = User.builder()
                 .id(2L)
                 .email("zoozaver@yandex.ru")

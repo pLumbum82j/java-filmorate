@@ -26,9 +26,8 @@ public class UserService {
         this.userStorage = userStorage;
     }
 
-
     /**
-     * Метод (эндпоинт) получения списка пользователей
+     * Метод получения списка пользователей
      *
      * @return Список пользователей
      */
@@ -37,12 +36,24 @@ public class UserService {
         return new ArrayList<>(userStorage.getUsers().values());
     }
 
+    /**
+     * Метод получения пользователя по id
+     *
+     * @param id id пользователя
+     * @return объект пользователя
+     */
     public User findUserById(Long id) {
         ContainUserId(id);
         log.debug("Получен запрос на поиск пользователя {}", id);
         return userStorage.findUserById(id);
     }
 
+    /**
+     * Метод получения списка друзей пользователя по id
+     *
+     * @param id id пользователя
+     * @return список друзей пользователя
+     */
     public List<User> getUserFriends(Long id) {
         ContainUserId(id);
         log.debug("Получен запрос на список друзей пользователя {}", id);
@@ -53,13 +64,16 @@ public class UserService {
                 .collect(Collectors.toList());
     }
 
+    /**
+     * Метод (эндпоинт) получения списка общих друзей двух пользователей по id
+     *
+     * @param firstId  id первого пользователя
+     * @param secondId id второго пользователя
+     * @return список общих друзей двух пользователей
+     */
     public List<User> getListOfCommonFriends(long firstId, long secondId) {
         ContainUserId(firstId);
         ContainUserId(secondId);
-//        if (!isFriendshipCheck(firstId, secondId)) {
-//            log.debug("Пользователь с ID {} не является другом пользователя ID {}", firstId, secondId);
-//            throw new UsersAreNotFriendsException("Пользователи не являются друзьями");
-//        }
         log.debug("Получен запрос на список общих друзей пользователей с ID {} и ID {}", firstId, secondId);
         List<User> friendsFirstUser = userStorage.findUserById(firstId)
                 .getFriendsList()
@@ -76,7 +90,7 @@ public class UserService {
     }
 
     /**
-     * Метод (эндпоинт) создания пользователя
+     * Метод создания пользователя
      *
      * @param user Принятый объект пользователя по эндпоинту
      * @return созданный объект пользователя
@@ -94,7 +108,7 @@ public class UserService {
     }
 
     /**
-     * Метод (эндпоинт) обновления пользователя
+     * Метод обновления пользователя
      *
      * @param user Принятый объект пользователя по эндпоинту
      * @return изменённый объект пользователя
@@ -108,6 +122,12 @@ public class UserService {
         return user;
     }
 
+    /**
+     * Метод добавления пользователя в друзья
+     *
+     * @param firstId  id первого пользователя
+     * @param secondId id второго пользователя
+     */
     public void addFriend(Long firstId, Long secondId) {
         ContainUserId(firstId);
         ContainUserId(secondId);
@@ -123,6 +143,12 @@ public class UserService {
 
     }
 
+    /**
+     * Метод удаления пользователя из друзей
+     *
+     * @param firstId  id первого пользователя
+     * @param secondId id второго пользователя
+     */
     public void deleteFriend(Long firstId, Long secondId) {
         ContainUserId(firstId);
         ContainUserId(secondId);
@@ -136,7 +162,6 @@ public class UserService {
         userStorage.update(userStorage.findUserById(secondId));
         log.debug("Теперь пользователь ID {} не является другом пользователя ID {}", firstId, secondId);
     }
-
 
     /**
      * Метод проверки валидации пользователя
@@ -159,6 +184,11 @@ public class UserService {
         }
     }
 
+    /**
+     * Метод проверки присутсивя пользователя на сервере
+     *
+     * @param id id пользователя
+     */
     private void ContainUserId(long id) {
         if (!userStorage.getUsers().containsKey(id)) {
             log.warn("Пользователя с указанным ID {} - не существует", id);
@@ -166,8 +196,14 @@ public class UserService {
         }
     }
 
+    /**
+     * Метод проверки дружбы между двумя пользователями
+     *
+     * @param firstId  id первого пользователя
+     * @param secondId id второго пользователя
+     * @return Возвращаем true/false при прохождении валидации
+     */
     private boolean isFriendshipCheck(Long firstId, Long secondId) {
         return userStorage.getUsers().get(firstId).getFriendsList().contains(secondId);
     }
-
 }

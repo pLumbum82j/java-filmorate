@@ -21,11 +21,7 @@ public class InMemoryFilmStorage implements FilmStorage {
         return id++;
     }
 
-    /**
-     * Метод (эндпоинт) получения списка фильмов
-     *
-     * @return Список филмьов
-     */
+
     public Map<Long, Film> getFilms() {
         return films;
     }
@@ -34,25 +30,11 @@ public class InMemoryFilmStorage implements FilmStorage {
         return films.get(id);
     }
 
-    /**
-     * Метод (эндпоинт) создания фильма
-     *
-     * @param film Принятый объект фильма по эндпоинту
-     * @return созданный объект фильма
-     */
-
     public Film create(Film film) {
         film.setId(generatorId());
         films.put(film.getId(), film);
         return film;
     }
-
-    /**
-     * Метод (эндпоинт) обновления фильма
-     *
-     * @param film Принятый объект фильма по эндпоинту
-     * @return изменённый объект фильма
-     */
 
     public Film update(Film film) {
         return films.put(film.getId(), film);

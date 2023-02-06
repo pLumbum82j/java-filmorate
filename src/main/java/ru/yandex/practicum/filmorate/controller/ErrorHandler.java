@@ -7,6 +7,9 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 import ru.yandex.practicum.filmorate.exception.*;
 import ru.yandex.practicum.filmorate.model.ErrorResponse;
 
+/**
+ * Класс обработки ошибок
+ */
 @RestControllerAdvice
 public class ErrorHandler {
 
@@ -17,6 +20,7 @@ public class ErrorHandler {
                 e.getMessage()
         );
     }
+
     @ExceptionHandler
     @ResponseStatus(HttpStatus.BAD_REQUEST) //400
     public ErrorResponse handleIncorrectParameterException(final UserIsAlreadyFriendException e) {
@@ -24,6 +28,7 @@ public class ErrorHandler {
                 e.getMessage()
         );
     }
+
     @ExceptionHandler
     @ResponseStatus(HttpStatus.BAD_REQUEST) //400
     public ErrorResponse handleIncorrectParameterException(final UsersAreNotFriendsException e) {
