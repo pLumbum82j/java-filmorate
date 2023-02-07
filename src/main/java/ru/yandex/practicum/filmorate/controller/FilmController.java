@@ -17,11 +17,8 @@ import static ru.yandex.practicum.filmorate.Constants.DESCENDING_ORDER;
 @RequiredArgsConstructor
 @RequestMapping("/films")
 public class FilmController {
-   private final FilmService filmService;
 
-//    public FilmController(FilmService filmService) {
-//        this.filmService = filmService;
-//    }
+   private final FilmService filmService;
 
     /**
      * Метод (эндпоинт) получения списка фильмов

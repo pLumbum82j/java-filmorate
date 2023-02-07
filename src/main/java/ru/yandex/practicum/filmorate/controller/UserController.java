@@ -11,15 +11,11 @@ import java.util.List;
  * Класс Контроллер по энпоинту Users
  */
 @RestController
-@RequestMapping("/users")
 @RequiredArgsConstructor
+@RequestMapping("/users")
 public class UserController {
 
     private final UserService userService;
-
-//    public UserController(UserService userService) {
-//        this.userService = userService;
-//    }
 
     /**
      * Метод (эндпоинт) получения списка пользователей
