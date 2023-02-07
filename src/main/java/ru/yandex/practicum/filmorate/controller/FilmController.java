@@ -1,5 +1,6 @@
 package ru.yandex.practicum.filmorate.controller;
 
+import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.service.FilmService;
@@ -13,13 +14,14 @@ import static ru.yandex.practicum.filmorate.Constants.DESCENDING_ORDER;
  * Класс Контроллер по энпоинту Films
  */
 @RestController
+@RequiredArgsConstructor
 @RequestMapping("/films")
 public class FilmController {
-    FilmService filmService;
+   private final FilmService filmService;
 
-    public FilmController(FilmService filmService) {
-        this.filmService = filmService;
-    }
+//    public FilmController(FilmService filmService) {
+//        this.filmService = filmService;
+//    }
 
     /**
      * Метод (эндпоинт) получения списка фильмов
@@ -40,8 +42,8 @@ public class FilmController {
      */
     @GetMapping("/popular")
     public List<Film> getPopularFilms(
-            @RequestParam(value = "count", defaultValue = "10", required = false) Integer count,
-            @RequestParam(value = "sort", defaultValue = DESCENDING_ORDER, required = false) String sort) {
+            @RequestParam(value = "count", defaultValue = "10") Integer count,
+            @RequestParam(value = "sort", defaultValue = DESCENDING_ORDER) String sort) {
         return filmService.getPopularFilms(count, sort);
     }
 

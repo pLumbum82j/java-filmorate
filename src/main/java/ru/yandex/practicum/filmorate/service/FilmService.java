@@ -71,7 +71,7 @@ public class FilmService {
      * @return объект фильма
      */
     public Film findFilmById(Long id) {
-        ContainFilmId(id);
+        containFilmId(id);
         return filmStorage.findFilmById(id);
     }
 
@@ -95,7 +95,7 @@ public class FilmService {
      * @return изменённый объект фильма
      */
     public Film addLike(Long filmId, Long userId) {
-        ContainFilmId(filmId);
+        containFilmId(filmId);
         if (userStorage.isContainUserId(userId)) {
             log.warn("Пользователя с указанным ID {} - не существует", userId);
             throw new UserUnknownException("Пользователь с ID " + userId + " не существует");
@@ -112,7 +112,7 @@ public class FilmService {
      * @return изменённый объект фильма
      */
     public Film update(Film film) {
-        ContainFilmId(film.getId());
+        containFilmId(film.getId());
         filmStorage.update(film);
         log.debug("Фильм {} изменён", film.getName());
 
@@ -127,7 +127,7 @@ public class FilmService {
      * @return изменённый объект фильма
      */
     public Film deleteLike(Long filmId, Long userId) {
-        ContainFilmId(filmId);
+        containFilmId(filmId);
         if (userStorage.isContainUserId(userId)) {
             log.warn("Пользователя с указанным ID {} - не существует", userId);
             throw new UserUnknownException("Пользователь с ID " + userId + " не существует");
@@ -142,7 +142,7 @@ public class FilmService {
      *
      * @param id id фильма
      */
-    public void ContainFilmId(Long id) {
+    private void containFilmId(Long id) {
         if (!filmStorage.getFilms().containsKey(id)) {
             log.warn("Фильм с указанным ID {} - не существует", id);
             throw new FilmUnknownException("Фильм с ID " + id + " не существует");

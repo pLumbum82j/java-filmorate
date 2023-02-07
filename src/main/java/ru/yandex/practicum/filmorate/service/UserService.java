@@ -43,7 +43,7 @@ public class UserService {
      * @return объект пользователя
      */
     public User findUserById(Long id) {
-        ContainUserId(id);
+        containUserId(id);
         log.debug("Получен запрос на поиск пользователя {}", id);
         return userStorage.findUserById(id);
     }
@@ -55,7 +55,7 @@ public class UserService {
      * @return список друзей пользователя
      */
     public List<User> getUserFriends(Long id) {
-        ContainUserId(id);
+        containUserId(id);
         log.debug("Получен запрос на список друзей пользователя {}", id);
         return userStorage.findUserById(id)
                 .getFriendsList()
@@ -72,8 +72,8 @@ public class UserService {
      * @return список общих друзей двух пользователей
      */
     public List<User> getListOfCommonFriends(long firstId, long secondId) {
-        ContainUserId(firstId);
-        ContainUserId(secondId);
+        containUserId(firstId);
+        containUserId(secondId);
         log.debug("Получен запрос на список общих друзей пользователей с ID {} и ID {}", firstId, secondId);
         List<User> friendsFirstUser = userStorage.findUserById(firstId)
                 .getFriendsList()
@@ -114,7 +114,7 @@ public class UserService {
      * @return изменённый объект пользователя
      */
     public User update(User user) {
-        ContainUserId(user.getId());
+        containUserId(user.getId());
         if (isValid(user)) {
             userStorage.update(user);
             log.debug("Пользователь с логином {} успешно изменён", user.getLogin());
@@ -129,8 +129,8 @@ public class UserService {
      * @param secondId id второго пользователя
      */
     public void addFriend(Long firstId, Long secondId) {
-        ContainUserId(firstId);
-        ContainUserId(secondId);
+        containUserId(firstId);
+        containUserId(secondId);
         if (isFriendshipCheck(firstId, secondId)) {
             log.debug("Пользователь с ID {} уже является другом пользователя ID {}", firstId, secondId);
             throw new UserIsAlreadyFriendException("Пользователи уже являются друзьями");
@@ -150,8 +150,8 @@ public class UserService {
      * @param secondId id второго пользователя
      */
     public void deleteFriend(Long firstId, Long secondId) {
-        ContainUserId(firstId);
-        ContainUserId(secondId);
+        containUserId(firstId);
+        containUserId(secondId);
         if (!isFriendshipCheck(firstId, secondId)) {
             log.debug("Пользователь с ID {} не является другом пользователя ID {}", firstId, secondId);
             throw new UsersAreNotFriendsException("Пользователи не являются друзьями");
@@ -189,7 +189,7 @@ public class UserService {
      *
      * @param id id пользователя
      */
-    private void ContainUserId(long id) {
+    private void containUserId(long id) {
         if (!userStorage.getUsers().containsKey(id)) {
             log.warn("Пользователя с указанным ID {} - не существует", id);
             throw new UserUnknownException("Пользователь с ID " + id + " не существует");

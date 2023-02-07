@@ -1,5 +1,6 @@
 package ru.yandex.practicum.filmorate.controller;
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
@@ -11,11 +12,13 @@ import ru.yandex.practicum.filmorate.model.ErrorResponse;
  * Класс обработки ошибок
  */
 @RestControllerAdvice
+@Slf4j
 public class ErrorHandler {
 
     @ExceptionHandler
     @ResponseStatus(HttpStatus.BAD_REQUEST) //400
     public ErrorResponse handleIncorrectParameterException(final ValidationException e) {
+        log.error("Ошибка валидации");
         return new ErrorResponse(
                 e.getMessage()
         );
