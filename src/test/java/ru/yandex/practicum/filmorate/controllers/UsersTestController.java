@@ -170,7 +170,7 @@ public class UsersTestController {
 
         UserIsAlreadyFriendException exception = assertThrows(UserIsAlreadyFriendException.class, () -> userController.addFriend(testUser.getId(), testUser2.getId()));
 
-        assertEquals("Пользователи уже являются друзьями", exception.getMessage());
+        assertEquals("Пользователь с ID" + testUser.getId() + " уже является другом пользователя ID" + testUser2.getId(), exception.getMessage());
 
         testList.remove(testUser2.getId());
         testList.add(testUser.getId());
@@ -186,7 +186,7 @@ public class UsersTestController {
 
         UsersAreNotFriendsException exception = assertThrows(UsersAreNotFriendsException.class, () -> userController.deleteFriend(testUser.getId(), testUser2.getId()));
 
-        assertEquals("Пользователи не являются друзьями", exception.getMessage());
+        assertEquals("Пользователь с ID" + testUser.getId() + " не является другом пользователя ID" + testUser2.getId(), exception.getMessage());
 
         userController.addFriend(testUser.getId(), testUser2.getId());
         testList.add(testUser2.getId());

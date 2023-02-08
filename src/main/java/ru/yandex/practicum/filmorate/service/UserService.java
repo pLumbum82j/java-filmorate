@@ -132,8 +132,7 @@ public class UserService {
         containUserId(firstId);
         containUserId(secondId);
         if (isFriendshipCheck(firstId, secondId)) {
-            log.debug("Пользователь с ID {} уже является другом пользователя ID {}", firstId, secondId);
-            throw new UserIsAlreadyFriendException("Пользователи уже являются друзьями");
+            throw new UserIsAlreadyFriendException("Пользователь с ID" + firstId + " уже является другом пользователя ID" + secondId);
         }
         userStorage.findUserById(firstId).getFriendsList().add(secondId);
         userStorage.findUserById(secondId).getFriendsList().add(firstId);
@@ -153,8 +152,7 @@ public class UserService {
         containUserId(firstId);
         containUserId(secondId);
         if (!isFriendshipCheck(firstId, secondId)) {
-            log.debug("Пользователь с ID {} не является другом пользователя ID {}", firstId, secondId);
-            throw new UsersAreNotFriendsException("Пользователи не являются друзьями");
+            throw new UsersAreNotFriendsException("Пользователь с ID" + firstId + " не является другом пользователя ID" + secondId);
         }
         userStorage.findUserById(firstId).getFriendsList().remove(secondId);
         userStorage.findUserById(secondId).getFriendsList().remove(firstId);
@@ -171,13 +169,10 @@ public class UserService {
      */
     private boolean isValid(User user) {
         if (user.getEmail() == null || user.getEmail().isBlank() || !user.getEmail().contains("@")) {
-            log.warn("Электронная почта пользователя пустая или не содержат символ @");
             throw new ValidationException("Электронная почта не может быть пустой и должна содержать символ @");
         } else if (user.getLogin() == null || user.getLogin().isBlank() || user.getLogin().contains(" ")) {
-            log.warn("Логин пустой или содержит пробелы");
             throw new ValidationException("Логин не может быть пустым и содержать пробелы");
         } else if (user.getBirthday().isAfter(LocalDate.now())) {
-            log.warn("Дата рождения пользователя превышает текущую дату");
             throw new ValidationException("Дата рождения не может быть в будущем");
         } else {
             return true;
@@ -191,7 +186,6 @@ public class UserService {
      */
     private void containUserId(long id) {
         if (!userStorage.getUsers().containsKey(id)) {
-            log.warn("Пользователя с указанным ID {} - не существует", id);
             throw new UserUnknownException("Пользователь с ID " + id + " не существует");
         }
     }

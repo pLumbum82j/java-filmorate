@@ -97,7 +97,6 @@ public class FilmService {
     public Film addLike(Long filmId, Long userId) {
         containFilmId(filmId);
         if (userStorage.isContainUserId(userId)) {
-            log.warn("Пользователя с указанным ID {} - не существует", userId);
             throw new UserUnknownException("Пользователь с ID " + userId + " не существует");
         }
         log.debug("Получен запрос на добавления Like пользователя с ID {} в фильм с ID {}", userId, filmId);
@@ -129,7 +128,6 @@ public class FilmService {
     public Film deleteLike(Long filmId, Long userId) {
         containFilmId(filmId);
         if (userStorage.isContainUserId(userId)) {
-            log.warn("Пользователя с указанным ID {} - не существует", userId);
             throw new UserUnknownException("Пользователь с ID " + userId + " не существует");
         }
         log.debug("Получен запрос на удаления Like пользователя с ID {} в фильм с ID {}", userId, filmId);
@@ -144,7 +142,6 @@ public class FilmService {
      */
     private void containFilmId(Long id) {
         if (!filmStorage.getFilms().containsKey(id)) {
-            log.warn("Фильм с указанным ID {} - не существует", id);
             throw new FilmUnknownException("Фильм с ID " + id + " не существует");
         }
     }
