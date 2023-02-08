@@ -1,34 +1,24 @@
 package ru.yandex.practicum.filmorate.controller;
 
-import lombok.extern.slf4j.Slf4j;
+import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
-import ru.yandex.practicum.filmorate.exception.FilmUnknownException;
 import ru.yandex.practicum.filmorate.model.Film;
+import ru.yandex.practicum.filmorate.service.FilmService;
 
 import javax.validation.Valid;
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
+
+import static ru.yandex.practicum.filmorate.Constants.DESCENDING_ORDER;
 
 /**
  * Класс Контроллер по энпоинту Films
  */
-@Slf4j
 @RestController
+@RequiredArgsConstructor
 @RequestMapping("/films")
 public class FilmController {
-    private final Map<Long, Film> films = new HashMap<>();
-    private Long id = 1L;
 
-    /**
-     * Генератор ID
-     *
-     * @return ID
-     */
-    private Long generatorId() {
-        return id++;
-    }
+   private final FilmService filmService;
 
     /**
      * Метод (эндпоинт) получения списка фильмов
@@ -36,23 +26,56 @@ public class FilmController {
      * @return Список филмьов
      */
     @GetMapping()
-    public List<Film> findAll() {
-        log.debug("Получен запрос на список фильмов");
-        return new ArrayList<>(films.values());
+    public List<Film> getFilms() {
+        return filmService.getFilms();
+    }
+
+    /**
+     * Метод (эндпоинт) получения списка популярных фильмов
+     *
+     * @param count количество фильмов в списке
+     * @param sort  сортировка по убыванию/возрастанию like
+     * @return Список филмьов
+     */
+    @GetMapping("/popular")
+    public List<Film> getPopularFilms(
+            @RequestParam(value = "count", defaultValue = "10") Integer count,
+            @RequestParam(value = "sort", defaultValue = DESCENDING_ORDER) String sort) {
+        return filmService.getPopularFilms(count, sort);
+    }
+
+    /**
+     * Метод (эндпоинт) получения фильма по id
+     *
+     * @param id id фильма
+     * @return объект фильма
+     */
+    @GetMapping("/{id}")
+    public Film getFilmById(@PathVariable("id") Long id) {
+        return filmService.findFilmById(id);
     }
 
     /**
      * Метод (эндпоинт) создания фильма
      *
-     * @param film Принятый объект фильма по эндпоинту
+     * @param film принятый объект фильма по эндпоинту
      * @return созданный объект фильма
      */
     @PostMapping()
     public Film create(@Valid @RequestBody Film film) {
-        film.setId(generatorId());
-        films.put(film.getId(), film);
-        log.debug("Фильм {} создан", film.getName());
-        return film;
+        return filmService.create(film);
+    }
+
+    /**
+     * Метод (эндпоинт) добавления Like фильму
+     *
+     * @param id     id фильма
+     * @param userId id пользователя
+     * @return изменённый объект фильма
+     */
+    @PutMapping("/{id}/like/{userId}")
+    public Film addLike(@PathVariable Long id, @PathVariable Long userId) {
+        return filmService.addLike(id, userId);
     }
 
     /**
@@ -63,13 +86,19 @@ public class FilmController {
      */
     @PutMapping()
     public Film update(@Valid @RequestBody Film film) {
-        if (!films.containsKey(film.getId())) {
-            log.warn("Фильм с указанным ID {} - не существует", film.getId());
-            throw new FilmUnknownException("Фильм с ID " + film.getId() + " не существует");
-        }
-        films.put(film.getId(), film);
-        log.debug("Фильм {} изменён", film.getName());
-
-        return film;
+        return filmService.update(film);
     }
+
+    /**
+     * Метод (эндпоинт) удаления Like фильму
+     *
+     * @param id     id фильма
+     * @param userId id пользователя
+     * @return изменённый объект фильма
+     */
+    @DeleteMapping("/{id}/like/{userId}")
+    public Film deleteLike(@PathVariable Long id, @PathVariable Long userId) {
+        return filmService.deleteLike(id, userId);
+    }
+
 }

@@ -1,36 +1,21 @@
 package ru.yandex.practicum.filmorate.controller;
 
-import lombok.extern.slf4j.Slf4j;
+import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
-import ru.yandex.practicum.filmorate.exception.UserUnknownException;
-import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.User;
+import ru.yandex.practicum.filmorate.service.UserService;
 
-import javax.validation.Valid;
-import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 /**
  * Класс Контроллер по энпоинту Users
  */
-@Slf4j
 @RestController
+@RequiredArgsConstructor
 @RequestMapping("/users")
 public class UserController {
-    private final Map<Long, User> users = new HashMap<>();
-    private Long id = 1L;
 
-    /**
-     * Генератор ID
-     *
-     * @return ID
-     */
-    private Long generatorId() {
-        return id++;
-    }
+    private final UserService userService;
 
     /**
      * Метод (эндпоинт) получения списка пользователей
@@ -38,9 +23,42 @@ public class UserController {
      * @return Список пользователей
      */
     @GetMapping()
-    public List<User> findAll() {
-        log.debug("Получен запрос на список пользоваталей");
-        return new ArrayList<>(users.values());
+    public List<User> getUsers() {
+        return userService.getUsers();
+    }
+
+    /**
+     * Метод (эндпоинт) получения пользователя по id
+     *
+     * @param id id пользователя
+     * @return объект пользователя
+     */
+    @GetMapping("/{id}")
+    public User getUsersById(@PathVariable("id") Long id) {
+        return userService.findUserById(id);
+    }
+
+    /**
+     * Метод (эндпоинт) получения списка друзей пользователя по id
+     *
+     * @param id id пользователя
+     * @return список друзей пользователя
+     */
+    @GetMapping("/{id}/friends")
+    public List<User> getUserFriends(@PathVariable("id") Long id) {
+        return userService.getUserFriends(id);
+    }
+
+    /**
+     * Метод (эндпоинт) получения списка общих друзей двух пользователей по id
+     *
+     * @param id      id первого пользователя
+     * @param otherId id второго пользователя
+     * @return список общих друзей двух пользователей
+     */
+    @GetMapping("/{id}/friends/common/{otherId}")
+    public List<User> getListOfCommonFriends(@PathVariable Long id, @PathVariable Long otherId) {
+        return userService.getListOfCommonFriends(id, otherId);
     }
 
     /**
@@ -51,16 +69,7 @@ public class UserController {
      */
     @PostMapping()
     public User create(@RequestBody User user) {
-        if (isValid(user)) {
-            if ((user.getName() == null) || (user.getName().isBlank())) {
-                user.setName(user.getLogin());
-                log.debug("Имя для отображения пустое — в таком случае будет использован логин");
-            }
-            user.setId(generatorId());
-            users.put(user.getId(), user);
-            log.debug("Пользователь с логином {} успешно создан", user.getLogin());
-        }
-        return user;
+        return userService.create(user);
     }
 
     /**
@@ -71,36 +80,28 @@ public class UserController {
      */
     @PutMapping()
     public User update(@RequestBody User user) {
-        if (!users.containsKey(user.getId())) {
-            log.warn("Пользователя с указанным ID {} - не существует", user.getId());
-            throw new UserUnknownException("Пользователь с ID " + user.getId() + " не существует");
-        }
-        if (isValid(user)) {
-            users.put(user.getId(), user);
-            log.debug("Пользователь с логином {} успешно изменён", user.getLogin());
-        }
-
-        return user;
+        return userService.update(user);
     }
 
     /**
-     * Метод проверки валидации пользователя
+     * Метод (эндпоинт) добавления пользователя в друзья
      *
-     * @param user Принятый объект по эндпоинту
-     * @return Возвращаем true/false при прохождении валидации
+     * @param id       id первого пользователя
+     * @param friendId id второго пользователя
      */
-    private boolean isValid(User user) {
-        if (user.getEmail() == null || user.getEmail().isBlank() || !user.getEmail().contains("@")) {
-            log.warn("Электронная почта пользователя пустая или не содержат символ @");
-            throw new ValidationException("Электронная почта не может быть пустой и должна содержать символ @");
-        } else if (user.getLogin() == null || user.getLogin().isBlank() || user.getLogin().contains(" ")) {
-            log.warn("Логин пустой или содержит пробелы");
-            throw new ValidationException("Логин не может быть пустым и содержать пробелы");
-        } else if (user.getBirthday().isAfter(LocalDate.now())) {
-            log.warn("Дата рождения пользователя превышает текущую дату");
-            throw new ValidationException("Дата рождения не может быть в будущем");
-        } else {
-            return true;
-        }
+    @PutMapping("/{id}/friends/{friendId}")
+    public void addFriend(@PathVariable Long id, @PathVariable Long friendId) {
+        userService.addFriend(id, friendId);
+    }
+
+    /**
+     * Метод (эндпоинт) удаления пользователя из друзей
+     *
+     * @param id       id первого пользователя
+     * @param friendId id второго пользователя
+     */
+    @DeleteMapping("/{id}/friends/{friendId}")
+    public void deleteFriend(@PathVariable Long id, @PathVariable Long friendId) {
+        userService.deleteFriend(id, friendId);
     }
 }
