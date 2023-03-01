@@ -15,13 +15,7 @@ public class FilmDbService {
         this.filmDbStorage = filmDbStorage;
     }
 
-    public Mpa getMpaById(int id) {
-        if (filmDbStorage.getMpaById(id) != null) {
-            return filmDbStorage.getMpaById(id);
-        } else {
-            throw new MpaUnknownException("MPA с ID " + id + " не найден");
-        }
-    }
+
 
 }
 

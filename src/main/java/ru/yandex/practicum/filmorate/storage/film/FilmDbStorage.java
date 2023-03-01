@@ -7,6 +7,7 @@ import org.springframework.jdbc.support.rowset.SqlRowSet;
 import org.springframework.stereotype.Repository;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.Mpa;
+import ru.yandex.practicum.filmorate.storage.mpa.MpaStorage;
 
 import java.util.Map;
 
@@ -42,19 +43,5 @@ public class FilmDbStorage implements FilmStorage {
         return null;
     }
 
-    public Mpa getMpaById(int id) {
-        String sqlQuery = "SELECT * FROM MPA WHERE MPA_ID = ?";
-        SqlRowSet mpaRows = jdbcTemplate.queryForRowSet(sqlQuery, id);
-        if (mpaRows.next()) {
-            //log.info("Найден MPA {} {}", mpaRows.getString("mpa_id")), mpaRows.getString("mpa_name");
-            Mpa mpa = new Mpa(
-                    mpaRows.getInt("mpa_id"),
-                    mpaRows.getString("name"),
-                    mpaRows.getString("description"));
-            return mpa;
-        } else {
-            log.info("MPA с индентификатором {} не найден ", id);
-            return null;
-        }
-    }
+
 }
