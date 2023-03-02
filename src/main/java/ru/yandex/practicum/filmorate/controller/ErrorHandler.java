@@ -71,6 +71,15 @@ public class ErrorHandler {
 
     @ExceptionHandler
     @ResponseStatus(HttpStatus.NOT_FOUND) //404
+    public ErrorResponse handlePostNotFoundException(final GenreUnknownException e) {
+        log.warn(e.getMessage());
+        return new ErrorResponse(
+                e.getMessage()
+        );
+    }
+
+    @ExceptionHandler
+    @ResponseStatus(HttpStatus.NOT_FOUND) //404
     public ErrorResponse handlePostNotFoundException(final FilmUnknownException e) {
         log.warn(e.getMessage());
         return new ErrorResponse(

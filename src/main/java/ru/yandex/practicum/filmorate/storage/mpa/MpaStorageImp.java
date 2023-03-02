@@ -9,7 +9,6 @@ import ru.yandex.practicum.filmorate.model.Mpa;
 
 import java.util.List;
 
-@Slf4j
 @Repository
 public class MpaStorageImp implements MpaStorage {
     private final JdbcTemplate jdbcTemplate;
@@ -24,9 +23,9 @@ public class MpaStorageImp implements MpaStorage {
         String sqlQuery = "SELECT * FROM MPA";
         return jdbcTemplate.query(sqlQuery,
                 (rs, rowNum) -> new Mpa(
-                        rs.getInt("mpa_id"),
-                        rs.getString("name"),
-                        rs.getString("description")));
+                        rs.getInt("MPA_ID"),
+                        rs.getString("NAME"),
+                        rs.getString("DESCRIPTION")));
     }
 
 
@@ -34,15 +33,11 @@ public class MpaStorageImp implements MpaStorage {
         String sqlQuery = "SELECT * FROM MPA WHERE MPA_ID = ?";
         SqlRowSet mpaRows = jdbcTemplate.queryForRowSet(sqlQuery, id);
         if (mpaRows.next()) {
-            //log.info("Найден MPA {} {}", mpaRows.getString("mpa_id")), mpaRows.getString("mpa_name");
-            Mpa mpa = new Mpa(
-                    mpaRows.getInt("mpa_id"),
-                    mpaRows.getString("name"),
-                    mpaRows.getString("description"));
-            return mpa;
-        } else {
-            log.info("MPA с идентификатором {} не найден ", id);
-            return null;
+            return new Mpa(
+                    mpaRows.getInt("MPA_ID"),
+                    mpaRows.getString("NAME"),
+                    mpaRows.getString("DESCRIPTION"));
         }
+        return null;
     }
 }
