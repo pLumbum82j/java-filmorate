@@ -2,6 +2,7 @@ package ru.yandex.practicum.filmorate.storage.film;
 
 import ru.yandex.practicum.filmorate.model.Film;
 
+import java.sql.SQLException;
 import java.util.Map;
 
 /**
@@ -30,7 +31,7 @@ public interface FilmStorage {
      * @param film принятый объект фильма по эндпоинту
      * @return созданный объект фильма
      */
-    Film create(Film film);
+    Film create(Film film) throws SQLException;
 
     /**
      * Метод обновления фильма

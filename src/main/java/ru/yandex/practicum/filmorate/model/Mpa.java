@@ -8,11 +8,10 @@ import lombok.Setter;
 public class Mpa {
     private Integer id;
     private String name;
-    private String description;
 
-    public Mpa(Integer id, String name, String description) {
+
+    public Mpa(Integer id, String name) {
         this.id = id;
         this.name = name;
-        this.description = description;
     }
 }

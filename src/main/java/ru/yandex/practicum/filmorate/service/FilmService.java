@@ -13,6 +13,7 @@ import ru.yandex.practicum.filmorate.storage.film.FilmDbStorage;
 import ru.yandex.practicum.filmorate.storage.film.FilmStorage;
 import ru.yandex.practicum.filmorate.storage.user.UserStorage;
 
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -84,7 +85,7 @@ public class FilmService {
      * @param film принятый объект фильма по эндпоинту
      * @return созданный объект фильма
      */
-    public Film create(Film film) {
+    public Film create(Film film) throws SQLException {
         filmStorage.create(film);
         log.debug("Фильм {} создан", film.getName());
         return film;

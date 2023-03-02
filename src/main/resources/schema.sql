@@ -1,10 +1,3 @@
-CREATE TABLE IF NOT EXISTS PUBLIC.FRIENDS_FLAG
-(
-    FRIENDS_FLAG_ID INTEGER auto_increment
-        primary key,
-    NAME_FLAG       CHARACTER VARYING(20)
-);
-
 CREATE TABLE IF NOT EXISTS PUBLIC.GENRE
 (
     GENRE_ID INTEGER auto_increment
@@ -16,7 +9,6 @@ CREATE TABLE IF NOT EXISTS PUBLIC.MPA
 (
     MPA_ID      INTEGER auto_increment,
     NAME        CHARACTER VARYING(20)  not null,
-    DESCRIPTION CHARACTER VARYING(200) not null,
     constraint "MPA_pk"
         primary key (MPA_ID)
 );
@@ -62,9 +54,6 @@ CREATE TABLE IF NOT EXISTS PUBLIC.FRIENDS
         primary key,
     FIRST_USER_ID   BIGINT,
     SECOND_USER_ID  BIGINT,
-    FRIENDS_FLAG_ID INTEGER,
-    constraint FRIENDS_FK_FRIENDS_FLAG
-        foreign key (FRIENDS_FLAG_ID) references PUBLIC.FRIENDS_FLAG,
     constraint FRIENDS_FK_USER_FIRST
         foreign key (FIRST_USER_ID) references PUBLIC.USERS,
     constraint FRIENDS_FK_USER_SECOND

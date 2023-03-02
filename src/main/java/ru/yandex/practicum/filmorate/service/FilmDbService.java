@@ -1,5 +1,6 @@
 package ru.yandex.practicum.filmorate.service;
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.model.Film;
@@ -8,9 +9,11 @@ import ru.yandex.practicum.filmorate.storage.film.FilmStorage;
 import ru.yandex.practicum.filmorate.storage.genre.GenreStorage;
 import ru.yandex.practicum.filmorate.storage.user.UserStorage;
 
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
+@Slf4j
 @Service
 public class FilmDbService {
     private final FilmStorage filmStorage;
@@ -23,6 +26,12 @@ public class FilmDbService {
 
     public List<Film> getAllFilms() {
         return new ArrayList<>(filmStorage.getFilms().values());
+    }
+
+    public Film create(Film film) throws SQLException {
+        Film resultFilm = filmStorage.create(film);
+        log.debug("Фильм {} создан", film.getName());
+        return resultFilm;
     }
 
 }

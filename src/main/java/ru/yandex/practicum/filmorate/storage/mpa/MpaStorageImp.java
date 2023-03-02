@@ -24,9 +24,9 @@ public class MpaStorageImp implements MpaStorage {
         return jdbcTemplate.query(sqlQuery,
                 (rs, rowNum) -> new Mpa(
                         rs.getInt("MPA_ID"),
-                        rs.getString("NAME"),
-                        rs.getString("DESCRIPTION")));
-    }
+                        rs.getString("NAME")));
+
+}
 
 
     public Mpa getMpaById(int id) {
@@ -35,8 +35,7 @@ public class MpaStorageImp implements MpaStorage {
         if (mpaRows.next()) {
             return new Mpa(
                     mpaRows.getInt("MPA_ID"),
-                    mpaRows.getString("NAME"),
-                    mpaRows.getString("DESCRIPTION"));
+                    mpaRows.getString("NAME"));
         }
         return null;
     }
