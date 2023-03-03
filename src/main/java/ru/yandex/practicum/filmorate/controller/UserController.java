@@ -3,6 +3,7 @@ package ru.yandex.practicum.filmorate.controller;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.filmorate.model.User;
+import ru.yandex.practicum.filmorate.service.UserDbService;
 import ru.yandex.practicum.filmorate.service.UserService;
 
 import java.util.List;
@@ -15,7 +16,7 @@ import java.util.List;
 @RequestMapping("/users")
 public class UserController {
 
-    private final UserService userService;
+    private final UserDbService userDbService;
 
     /**
      * Метод (эндпоинт) получения списка пользователей
@@ -24,7 +25,7 @@ public class UserController {
      */
     @GetMapping()
     public List<User> getUsers() {
-        return userService.getUsers();
+        return userDbService.getUsers();
     }
 
     /**
@@ -35,32 +36,32 @@ public class UserController {
      */
     @GetMapping("/{id}")
     public User getUsersById(@PathVariable("id") Long id) {
-        return userService.findUserById(id);
+        return userDbService.findUserById(id);
     }
 
-    /**
-     * Метод (эндпоинт) получения списка друзей пользователя по id
-     *
-     * @param id id пользователя
-     * @return список друзей пользователя
-     */
-    @GetMapping("/{id}/friends")
-    public List<User> getUserFriends(@PathVariable("id") Long id) {
-        return userService.getUserFriends(id);
-    }
-
-    /**
-     * Метод (эндпоинт) получения списка общих друзей двух пользователей по id
-     *
-     * @param id      id первого пользователя
-     * @param otherId id второго пользователя
-     * @return список общих друзей двух пользователей
-     */
-    @GetMapping("/{id}/friends/common/{otherId}")
-    public List<User> getListOfCommonFriends(@PathVariable Long id, @PathVariable Long otherId) {
-        return userService.getListOfCommonFriends(id, otherId);
-    }
-
+//    /**
+//     * Метод (эндпоинт) получения списка друзей пользователя по id
+//     *
+//     * @param id id пользователя
+//     * @return список друзей пользователя
+//     */
+//    @GetMapping("/{id}/friends")
+//    public List<User> getUserFriends(@PathVariable("id") Long id) {
+//        return userService.getUserFriends(id);
+//    }
+//
+//    /**
+//     * Метод (эндпоинт) получения списка общих друзей двух пользователей по id
+//     *
+//     * @param id      id первого пользователя
+//     * @param otherId id второго пользователя
+//     * @return список общих друзей двух пользователей
+//     */
+//    @GetMapping("/{id}/friends/common/{otherId}")
+//    public List<User> getListOfCommonFriends(@PathVariable Long id, @PathVariable Long otherId) {
+//        return userService.getListOfCommonFriends(id, otherId);
+//    }
+//
     /**
      * Метод (эндпоинт) создания пользователя
      *
@@ -69,7 +70,7 @@ public class UserController {
      */
     @PostMapping()
     public User create(@RequestBody User user) {
-        return userService.create(user);
+        return userDbService.create(user);
     }
 
     /**
@@ -80,28 +81,28 @@ public class UserController {
      */
     @PutMapping()
     public User update(@RequestBody User user) {
-        return userService.update(user);
+        return userDbService.update(user);
     }
 
-    /**
-     * Метод (эндпоинт) добавления пользователя в друзья
-     *
-     * @param id       id первого пользователя
-     * @param friendId id второго пользователя
-     */
-    @PutMapping("/{id}/friends/{friendId}")
-    public void addFriend(@PathVariable Long id, @PathVariable Long friendId) {
-        userService.addFriend(id, friendId);
-    }
-
-    /**
-     * Метод (эндпоинт) удаления пользователя из друзей
-     *
-     * @param id       id первого пользователя
-     * @param friendId id второго пользователя
-     */
-    @DeleteMapping("/{id}/friends/{friendId}")
-    public void deleteFriend(@PathVariable Long id, @PathVariable Long friendId) {
-        userService.deleteFriend(id, friendId);
-    }
+//    /**
+//     * Метод (эндпоинт) добавления пользователя в друзья
+//     *
+//     * @param id       id первого пользователя
+//     * @param friendId id второго пользователя
+//     */
+//    @PutMapping("/{id}/friends/{friendId}")
+//    public void addFriend(@PathVariable Long id, @PathVariable Long friendId) {
+//        userService.addFriend(id, friendId);
+//    }
+//
+//    /**
+//     * Метод (эндпоинт) удаления пользователя из друзей
+//     *
+//     * @param id       id первого пользователя
+//     * @param friendId id второго пользователя
+//     */
+//    @DeleteMapping("/{id}/friends/{friendId}")
+//    public void deleteFriend(@PathVariable Long id, @PathVariable Long friendId) {
+//        userService.deleteFriend(id, friendId);
+//    }
 }

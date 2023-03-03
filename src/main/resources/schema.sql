@@ -1,17 +1,3 @@
---drop table GENRE cascade;
-
---drop table MPA cascade;
-
---drop table FILMS cascade;
-
---drop table GENRE_REG cascade;
-
---drop table USERS cascade;
-
---drop table FRIENDS cascade;
-
---drop table LIKES cascade;
-
 CREATE TABLE IF NOT EXISTS PUBLIC.GENRE
 (
     GENRE_ID INTEGER auto_increment

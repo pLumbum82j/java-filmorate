@@ -46,17 +46,17 @@ public class FilmController {
 //        return filmDbService.getPopularFilms(count, sort);
 //    }
 
-//    /**
-//     * Метод (эндпоинт) получения фильма по id
-//     *
-//     * @param id id фильма
-//     * @return объект фильма
-//     */
-//    @GetMapping("/{id}")
-//    public Film getFilmById(@PathVariable("id") Long id) {
-//        return filmDbService.findFilmById(id);
-//    }
-//
+    /**
+     * Метод (эндпоинт) получения фильма по id
+     *
+     * @param id id фильма
+     * @return объект фильма
+     */
+    @GetMapping("/{id}")
+    public Film getFilmById(@PathVariable("id") Long id) {
+        return filmDbService.findFilmById(id);
+    }
+
     /**
      * Метод (эндпоинт) создания фильма
      *

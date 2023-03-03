@@ -43,8 +43,8 @@ public class InMemoryFilmStorage implements FilmStorage {
     }
 
     @Override
-    public boolean addLike(Long filmId, Long userId) {
-        return false;
+    public void addLike(Long filmId, Long userId) {
+
     }
 
 

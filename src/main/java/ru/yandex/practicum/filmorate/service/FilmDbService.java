@@ -3,6 +3,7 @@ package ru.yandex.practicum.filmorate.service;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
+import ru.yandex.practicum.filmorate.exception.FilmUnknownException;
 import ru.yandex.practicum.filmorate.exception.MpaUnknownException;
 import ru.yandex.practicum.filmorate.exception.UpdateFilmUnknownException;
 import ru.yandex.practicum.filmorate.exception.UserUnknownException;
@@ -22,7 +23,7 @@ public class FilmDbService {
     private final FilmStorage filmStorage;
     private final UserStorage userStorage;
 
-    public FilmDbService(@Qualifier("filmDbStorage") FilmStorage filmStorage, UserStorage userStorage) {
+    public FilmDbService(@Qualifier("filmDbStorage") FilmStorage filmStorage, @Qualifier("userDbStorage") UserStorage userStorage) {
         this.filmStorage = filmStorage;
         this.userStorage = userStorage;
     }
@@ -36,7 +37,8 @@ public class FilmDbService {
         log.debug("Фильм {} создан", film.getName());
         return resultFilm;
     }
-    public Film update(Film film) throws  SQLException {
+
+    public Film update(Film film) throws SQLException {
         if (filmStorage.findFilmById(film.getId()) != null) {
             log.debug("Получен запрос на обновление Фильма с ID " + film.getId());
             Film updateFilm = filmStorage.update(film);
@@ -45,6 +47,15 @@ public class FilmDbService {
             throw new UpdateFilmUnknownException("Фильм с ID " + film.getId() + " не найден");
         }
     }
+
+    public Film findFilmById(Long id) {
+        Film findFilm;
+        if ((findFilm = filmStorage.findFilmById(id)) == null) {
+            throw new FilmUnknownException("Фильм с ID " + id + " не существует");
+        }
+        return findFilm;
+    }
+
     public Film addLike(Long filmId, Long userId) {
         if (filmStorage.findFilmById(filmId) == null) {
             throw new UpdateFilmUnknownException("Фильм с ID " + filmId + " не найден");
@@ -55,6 +66,7 @@ public class FilmDbService {
         log.debug("Получен запрос на добавления Like пользователя с ID {} в фильм с ID {}", userId, filmId);
         filmStorage.addLike(filmId, userId);
         return filmStorage.findFilmById(filmId);
+
     }
 
 

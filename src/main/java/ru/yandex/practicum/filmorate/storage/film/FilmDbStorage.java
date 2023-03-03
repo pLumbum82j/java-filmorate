@@ -20,7 +20,6 @@ import java.sql.SQLException;
 import java.time.LocalDate;
 import java.util.*;
 
-@Slf4j
 @Repository
 public class FilmDbStorage implements FilmStorage {
 
@@ -40,8 +39,7 @@ public class FilmDbStorage implements FilmStorage {
 //        List<Film> films = jdbcTemplate.query(sqlQuery, (rs, rowNum) -> makeFilm(rs));
 //        return null;
         String sqlQuery = "SELECT F.*,M.NAME as MNAME FROM FILMS F JOIN MPA M ON F.MPA_ID = M.MPA_ID";
-        List<Film> filmLists = jdbcTemplate.query(sqlQuery,
-                (rs, rowNum) -> makeFilm(rs, rowNum));
+        List<Film> filmLists = jdbcTemplate.query(sqlQuery, (rs, rowNum) -> makeFilm(rs, rowNum));
 //                        new Film(
 //                                rs.getLong("FILM_ID"),
 //                                rs.getString("F.NAME"),
@@ -122,7 +120,6 @@ public class FilmDbStorage implements FilmStorage {
 
     @Override
     public Film create(Film film) throws SQLException {
-        //String sqlQuery = "INSERT INTO FILMS (NAME, DESCRIPTION, RELEASEDATE, DURATION, RA MPA_ID) values (?,?,?,?,?)";
         final Map<String, Object> parameters = new HashMap<>();
         parameters.put("NAME", film.getName());
         parameters.put("DESCRIPTION", film.getDescription());
@@ -169,12 +166,12 @@ public class FilmDbStorage implements FilmStorage {
         String sqlQuery = "DELETE FROM GENRE_REG WHERE film_id = ?";
         jdbcTemplate.update(sqlQuery, filmId);
     }
-    public boolean addLike(Long filmId, Long userId) {
-        String sqlQuery = "INSERT INTO LIKES (film_id, user_id) values (?,?)";
 
-        return jdbcTemplate.update(sqlQuery,
-                filmId,
-                userId) > 0;
+    public void addLike(Long filmId, Long userId) {
+        String sqlQuery = "INSERT INTO LIKES (USER_ID, FILM_ID) values (?,?)";
+
+        //return
+        jdbcTemplate.update(sqlQuery, userId, filmId);
     }
 
 }
