@@ -114,7 +114,7 @@ public class FilmService {
      * @param film Принятый объект фильма по эндпоинту
      * @return изменённый объект фильма
      */
-    public Film update(Film film) {
+    public Film update(Film film) throws SQLException {
         containFilmId(film.getId());
         filmStorage.update(film);
         log.debug("Фильм {} изменён", film.getName());

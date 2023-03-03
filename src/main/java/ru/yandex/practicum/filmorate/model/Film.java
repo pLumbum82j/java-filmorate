@@ -20,50 +20,7 @@ import static ru.yandex.practicum.filmorate.Constants.FIRST_RELEASE;
 @Data
 @Builder
 public class Film {
-/*
-    public Film() {
 
-    }
-
-    public Film(String name) {
-        this.name = name;
-    }
-
-
-    public Film(String name, String description, LocalDate releaseDate, long duration) {
-                this.name = name;
-        this.description = description;
-        this.releaseDate = releaseDate;
-        this.duration = duration;
-    }
-
-    public Film(Long id, String name, String description, LocalDate releaseDate, long duration) {
-            this.id = id;
-        this.name = name;
-        this.description = description;
-        this.releaseDate = releaseDate;
-        this.duration = duration;
-    }
-
-    public Film(Long id, String name, String description, LocalDate releaseDate, long duration, Mpa mpa, List<Genre> genres) {
-        this.id = id;
-        this.name = name;
-        this.description = description;
-        this.releaseDate = releaseDate;
-        this.duration = duration;
-        this.mpa = mpa;
-        this.genres = genres;
-    }
-
-    public Film(Long id, String name) {
-        this.id = id;
-        this.name = name;
-    }
-
-    public Film(Long id) {
-        this.id = id;
-    }
-*/
     private Long id;
     @NotBlank(message = "Название фильма не может быть пустым")
     private String name;
@@ -73,8 +30,8 @@ public class Film {
     private LocalDate releaseDate;
     @Min(value = 1, message = "Продолжительность фильма нулевая или отрицательная")
     private long duration;
+    private int rate;
     private final Set<Long> likes = new HashSet<>();
-
     private Mpa mpa;
     private List<Genre> genres;
 

@@ -31,21 +31,21 @@ public class FilmController {
     public List<Film> getFilms() {
         return filmDbService.getAllFilms();
     }
-//
-//    /**
-//     * Метод (эндпоинт) получения списка популярных фильмов
-//     *
-//     * @param count количество фильмов в списке
-//     * @param sort  сортировка по убыванию/возрастанию like
-//     * @return Список филмьов
-//     */
+
+    /**
+     * Метод (эндпоинт) получения списка популярных фильмов
+     *
+     * @param count количество фильмов в списке
+     * @param sort  сортировка по убыванию/возрастанию like
+     * @return Список филмьов
+     */
 //    @GetMapping("/popular")
 //    public List<Film> getPopularFilms(
 //            @RequestParam(value = "count", defaultValue = "10") Integer count,
 //            @RequestParam(value = "sort", defaultValue = DESCENDING_ORDER) String sort) {
 //        return filmDbService.getPopularFilms(count, sort);
 //    }
-//
+
 //    /**
 //     * Метод (эндпоинт) получения фильма по id
 //     *
@@ -67,29 +67,29 @@ public class FilmController {
     public Film create(@Valid @RequestBody Film film) throws SQLException {
         return filmDbService.create(film);
     }
-//
-//    /**
-//     * Метод (эндпоинт) добавления Like фильму
-//     *
-//     * @param id     id фильма
-//     * @param userId id пользователя
-//     * @return изменённый объект фильма
-//     */
-//    @PutMapping("/{id}/like/{userId}")
-//    public Film addLike(@PathVariable Long id, @PathVariable Long userId) {
-//        return filmService.addLike(id, userId);
-//    }
-//
-//    /**
-//     * Метод (эндпоинт) обновления фильма
-//     *
-//     * @param film Принятый объект фильма по эндпоинту
-//     * @return изменённый объект фильма
-//     */
-//    @PutMapping()
-//    public Film update(@Valid @RequestBody Film film) {
-//        return filmService.update(film);
-//    }
+
+    /**
+     * Метод (эндпоинт) добавления Like фильму
+     *
+     * @param id     id фильма
+     * @param userId id пользователя
+     * @return изменённый объект фильма
+     */
+    @PutMapping("/{id}/like/{userId}")
+    public Film addLike(@PathVariable Long id, @PathVariable Long userId) {
+        return filmDbService.addLike(id, userId);
+    }
+
+    /**
+     * Метод (эндпоинт) обновления фильма
+     *
+     * @param film Принятый объект фильма по эндпоинту
+     * @return изменённый объект фильма
+     */
+    @PutMapping()
+    public Film update(@Valid @RequestBody Film film) throws SQLException {
+        return filmDbService.update(film);
+    }
 //
 //    /**
 //     * Метод (эндпоинт) удаления Like фильму

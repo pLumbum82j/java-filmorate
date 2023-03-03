@@ -68,6 +68,7 @@ public class FilmDbStorage implements FilmStorage {
                 .releaseDate(rs.getDate("RELEASEDATE").toLocalDate())
                 .duration(rs.getLong("DURATION"))
                 .mpa(new Mpa(rs.getInt("MPA_ID"), rs.getString("MNAME")))
+                .rate(rs.getInt("RATE"))
                 .genres(getGenreByFilmId(rs.getLong("FILM_ID")))
                 .build();
     }
@@ -89,29 +90,45 @@ public class FilmDbStorage implements FilmStorage {
     public Film findFilmById(Long id) {
         String sqlQuery = "SELECT F.*,M.NAME as MNAME FROM FILMS F JOIN MPA M ON F.MPA_ID = M.MPA_ID WHERE F.FILM_ID = ?";
         SqlRowSet filmRows = jdbcTemplate.queryForRowSet(sqlQuery, id);
-        Film film = Film.builder().build();
+//        Film film = Film.builder().build();
+//        if (filmRows.next()) {
+//            film.setId(id);
+//            film.setName(filmRows.getString("NAME"));
+//            film.setReleaseDate(filmRows.getDate("RELEASEDATE").toLocalDate());
+//            film.setDuration(filmRows.getLong("DURATION"));
+//            film.setDescription(filmRows.getString("DESCRIPTION"));
+//            film.setMpa(new Mpa(filmRows.getInt("MPA_ID"), (filmRows.getString("MNAME"))));
+//            film.setRate(filmRows.getInt("RATE"));
+//            film.setGenres(getGenreByFilmId(filmRows.getLong("FILM_ID")));
+//        }
+//        return film;
+
         if (filmRows.next()) {
+            Film film = Film.builder().build();
             film.setId(id);
             film.setName(filmRows.getString("NAME"));
             film.setReleaseDate(filmRows.getDate("RELEASEDATE").toLocalDate());
             film.setDuration(filmRows.getLong("DURATION"));
             film.setDescription(filmRows.getString("DESCRIPTION"));
             film.setMpa(new Mpa(filmRows.getInt("MPA_ID"), (filmRows.getString("MNAME"))));
+            film.setRate(filmRows.getInt("RATE"));
             film.setGenres(getGenreByFilmId(filmRows.getLong("FILM_ID")));
+            return film;
         }
-        return film;
+        return null;
+
 
     }
 
     @Override
     public Film create(Film film) throws SQLException {
-        //String sqlQuery = "INSERT INTO FILMS (NAME, DESCRIPTION, RELEASEDATE, DURATION, MPA_ID) values (?,?,?,?,?)";
+        //String sqlQuery = "INSERT INTO FILMS (NAME, DESCRIPTION, RELEASEDATE, DURATION, RA MPA_ID) values (?,?,?,?,?)";
         final Map<String, Object> parameters = new HashMap<>();
         parameters.put("NAME", film.getName());
         parameters.put("DESCRIPTION", film.getDescription());
         parameters.put("RELEASEDATE", film.getReleaseDate());
         parameters.put("DURATION", film.getDuration());
-        // parameters.put("rate", film.getRate());
+        parameters.put("rate", film.getRate());
         parameters.put("MPA_ID", film.getMpa().getId());
         Long filmId = (Long) insertIntoFilm.executeAndReturnKey(parameters);
         if (film.getGenres() != null) {
@@ -129,9 +146,35 @@ public class FilmDbStorage implements FilmStorage {
 
 
     @Override
-    public Film update(Film film) {
+    public Film update(Film film) throws SQLException {
+        String sqlQuery = "UPDATE FILMS SET name=?, description=?, releasedate=?, duration=?,rate=?, mpa_id=? WHERE film_id=?";
+        if (jdbcTemplate.update(sqlQuery,
+                film.getName(),
+                film.getDescription(),
+                film.getReleaseDate(),
+                film.getDuration(),
+                film.getRate(),
+                film.getMpa().getId(),
+                film.getId()) > 0) {
+            deleteGenresByFilmId(film.getId()); // обновляем жанры
+            if (film.getGenres() != null) {
+                addGenresByFilmId(film.getId(), film.getGenres());
+            }
+            return findFilmById(film.getId());
+        }
         return null;
     }
 
+    public void deleteGenresByFilmId(long filmId) {
+        String sqlQuery = "DELETE FROM GENRE_REG WHERE film_id = ?";
+        jdbcTemplate.update(sqlQuery, filmId);
+    }
+    public boolean addLike(Long filmId, Long userId) {
+        String sqlQuery = "INSERT INTO LIKES (film_id, user_id) values (?,?)";
+
+        return jdbcTemplate.update(sqlQuery,
+                filmId,
+                userId) > 0;
+    }
 
 }

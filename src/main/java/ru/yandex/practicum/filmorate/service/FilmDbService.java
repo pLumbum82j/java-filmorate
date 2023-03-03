@@ -3,6 +3,9 @@ package ru.yandex.practicum.filmorate.service;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
+import ru.yandex.practicum.filmorate.exception.MpaUnknownException;
+import ru.yandex.practicum.filmorate.exception.UpdateFilmUnknownException;
+import ru.yandex.practicum.filmorate.exception.UserUnknownException;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.storage.film.FilmDbStorage;
 import ru.yandex.practicum.filmorate.storage.film.FilmStorage;
@@ -33,6 +36,27 @@ public class FilmDbService {
         log.debug("Фильм {} создан", film.getName());
         return resultFilm;
     }
+    public Film update(Film film) throws  SQLException {
+        if (filmStorage.findFilmById(film.getId()) != null) {
+            log.debug("Получен запрос на обновление Фильма с ID " + film.getId());
+            Film updateFilm = filmStorage.update(film);
+            return updateFilm;
+        } else {
+            throw new UpdateFilmUnknownException("Фильм с ID " + film.getId() + " не найден");
+        }
+    }
+    public Film addLike(Long filmId, Long userId) {
+        if (filmStorage.findFilmById(filmId) == null) {
+            throw new UpdateFilmUnknownException("Фильм с ID " + filmId + " не найден");
+        }
+        if (userStorage.isContainUserId(userId)) {
+            throw new UserUnknownException("Пользователь с ID " + userId + " не существует");
+        }
+        log.debug("Получен запрос на добавления Like пользователя с ID {} в фильм с ID {}", userId, filmId);
+        filmStorage.addLike(filmId, userId);
+        return filmStorage.findFilmById(filmId);
+    }
+
 
 }
 

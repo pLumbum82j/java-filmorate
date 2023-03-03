@@ -39,5 +39,7 @@ public interface FilmStorage {
      * @param film Принятый объект фильма по эндпоинту
      * @return изменённый объект фильма
      */
-    Film update(Film film);
+    Film update(Film film) throws SQLException;
+
+    boolean addLike(Long filmId, Long userId);
 }

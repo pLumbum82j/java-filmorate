@@ -1,3 +1,17 @@
+--drop table GENRE cascade;
+
+--drop table MPA cascade;
+
+--drop table FILMS cascade;
+
+--drop table GENRE_REG cascade;
+
+--drop table USERS cascade;
+
+--drop table FRIENDS cascade;
+
+--drop table LIKES cascade;
+
 CREATE TABLE IF NOT EXISTS PUBLIC.GENRE
 (
     GENRE_ID INTEGER auto_increment
@@ -21,6 +35,7 @@ CREATE TABLE IF NOT EXISTS PUBLIC.FILMS
     DESCRIPTION CHARACTER VARYING(200),
     RELEASEDATE DATE,
     DURATION    BIGINT,
+    RATE      INTEGER,
     MPA_ID      INTEGER,
     constraint FILMS_FK_MPA
         foreign key (MPA_ID) references PUBLIC.MPA
