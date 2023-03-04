@@ -125,7 +125,7 @@ public class FilmDbStorage implements FilmStorage {
         parameters.put("DESCRIPTION", film.getDescription());
         parameters.put("RELEASEDATE", film.getReleaseDate());
         parameters.put("DURATION", film.getDuration());
-        parameters.put("rate", film.getRate());
+        parameters.put("RATE", film.getRate());
         parameters.put("MPA_ID", film.getMpa().getId());
         Long filmId = (Long) insertIntoFilm.executeAndReturnKey(parameters);
         if (film.getGenres() != null) {
@@ -135,7 +135,15 @@ public class FilmDbStorage implements FilmStorage {
     }
 
     public void addGenresByFilmId(long filmId, List<Genre> genres) throws SQLException {
-        for (Genre genre : genres) {
+//       for (Genre genre : genres) {
+//           // String sqlQuery = "INSERT INTO GENRE_REG (GENRE_ID, FILM_ID) values (?,?)";
+//            String sqlQuery = "MERGE INTO GENRE_REG G USING (VALUES (?,?)) S(GENRE_ID, FILM_ID)\n" +
+//                    "ON G.GENRE_ID = S.GENRE_ID AND G.FILM_ID = S.FILM_ID \n" +
+//                    "WHEN NOT MATCHED THEN INSERT VALUES (S.GENRE_ID, S.FILM_ID)";
+//            jdbcTemplate.update(sqlQuery, genre.getId(), filmId);
+//        }
+//    }
+    for (Genre genre : genres) {
             String sqlQuery = "INSERT INTO GENRE_REG (GENRE_ID, FILM_ID) values (?,?)";
             jdbcTemplate.update(sqlQuery, genre.getId(), filmId);
         }
@@ -165,13 +173,6 @@ public class FilmDbStorage implements FilmStorage {
     public void deleteGenresByFilmId(long filmId) {
         String sqlQuery = "DELETE FROM GENRE_REG WHERE film_id = ?";
         jdbcTemplate.update(sqlQuery, filmId);
-    }
-
-    public void addLike(Long filmId, Long userId) {
-        String sqlQuery = "INSERT INTO LIKES (USER_ID, FILM_ID) values (?,?)";
-
-        //return
-        jdbcTemplate.update(sqlQuery, userId, filmId);
     }
 
 }

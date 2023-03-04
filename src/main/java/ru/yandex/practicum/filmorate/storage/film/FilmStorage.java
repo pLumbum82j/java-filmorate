@@ -41,5 +41,4 @@ public interface FilmStorage {
      */
     Film update(Film film) throws SQLException;
 
-    void addLike(Long filmId, Long userId);
 }

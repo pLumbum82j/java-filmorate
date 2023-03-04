@@ -7,6 +7,8 @@ import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.exception.UserUnknownException;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.User;
+import ru.yandex.practicum.filmorate.storage.friend.FriendDbStorage;
+import ru.yandex.practicum.filmorate.storage.friend.FriendStorage;
 import ru.yandex.practicum.filmorate.storage.user.UserStorage;
 
 import java.time.LocalDate;
@@ -18,10 +20,12 @@ import java.util.List;
 public class UserDbService {
 
     private final UserStorage userStorage;
+    private final FriendStorage friendStorage;
 
     @Autowired
-    public UserDbService(@Qualifier("userDbStorage") UserStorage userStorage) {
+    public UserDbService(@Qualifier("userDbStorage") UserStorage userStorage, FriendStorage friendStorage) {
         this.userStorage = userStorage;
+        this.friendStorage = friendStorage;
     }
 
     /**
@@ -102,6 +106,18 @@ public class UserDbService {
         } else {
             return true;
         }
+    }
+
+    /**
+     * Метод добавления пользователя в друзья
+     *
+     * @param firstId  id первого пользователя
+     * @param secondId id второго пользователя
+     */
+    public void addFriend(Long firstId, Long secondId) {
+        friendStorage.addFriends(firstId, secondId);
+        log.debug("Теперь пользователь ID {} является другом пользователя ID {}", firstId, secondId);
+
     }
 
 }

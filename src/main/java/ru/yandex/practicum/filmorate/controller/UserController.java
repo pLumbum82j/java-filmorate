@@ -84,17 +84,17 @@ public class UserController {
         return userDbService.update(user);
     }
 
-//    /**
-//     * Метод (эндпоинт) добавления пользователя в друзья
-//     *
-//     * @param id       id первого пользователя
-//     * @param friendId id второго пользователя
-//     */
-//    @PutMapping("/{id}/friends/{friendId}")
-//    public void addFriend(@PathVariable Long id, @PathVariable Long friendId) {
-//        userService.addFriend(id, friendId);
-//    }
-//
+    /**
+     * Метод (эндпоинт) добавления пользователя в друзья
+     *
+     * @param id       id первого пользователя
+     * @param friendId id второго пользователя
+     */
+    @PutMapping("/{id}/friends/{friendId}")
+    public void addFriend(@PathVariable Long id, @PathVariable Long friendId) {
+        userDbService.addFriend(id, friendId);
+    }
+
 //    /**
 //     * Метод (эндпоинт) удаления пользователя из друзей
 //     *

@@ -3,14 +3,13 @@ package ru.yandex.practicum.filmorate.service;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
-import ru.yandex.practicum.filmorate.exception.FilmUnknownException;
-import ru.yandex.practicum.filmorate.exception.MpaUnknownException;
-import ru.yandex.practicum.filmorate.exception.UpdateFilmUnknownException;
-import ru.yandex.practicum.filmorate.exception.UserUnknownException;
+import ru.yandex.practicum.filmorate.exception.*;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.storage.film.FilmDbStorage;
 import ru.yandex.practicum.filmorate.storage.film.FilmStorage;
 import ru.yandex.practicum.filmorate.storage.genre.GenreStorage;
+import ru.yandex.practicum.filmorate.storage.like.LikeDbStorage;
+import ru.yandex.practicum.filmorate.storage.like.LikeStorage;
 import ru.yandex.practicum.filmorate.storage.user.UserStorage;
 
 import java.sql.SQLException;
@@ -22,10 +21,14 @@ import java.util.List;
 public class FilmDbService {
     private final FilmStorage filmStorage;
     private final UserStorage userStorage;
+    private final LikeStorage likeStorage;
 
-    public FilmDbService(@Qualifier("filmDbStorage") FilmStorage filmStorage, @Qualifier("userDbStorage") UserStorage userStorage) {
+    public FilmDbService(@Qualifier("filmDbStorage") FilmStorage filmStorage,
+                         @Qualifier("userDbStorage") UserStorage userStorage,
+                         LikeStorage likeStorage) {
         this.filmStorage = filmStorage;
         this.userStorage = userStorage;
+        this.likeStorage = likeStorage;
     }
 
     public List<Film> getAllFilms() {
@@ -64,9 +67,8 @@ public class FilmDbService {
             throw new UserUnknownException("Пользователь с ID " + userId + " не существует");
         }
         log.debug("Получен запрос на добавления Like пользователя с ID {} в фильм с ID {}", userId, filmId);
-        filmStorage.addLike(filmId, userId);
+        likeStorage.addLike(filmId, userId);
         return filmStorage.findFilmById(filmId);
-
     }
 
 

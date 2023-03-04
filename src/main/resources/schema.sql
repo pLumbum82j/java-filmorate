@@ -1,3 +1,11 @@
+drop table if exists FILMS cascade;
+drop table if exists FRIENDS cascade;
+drop table if exists GENRE cascade;
+drop table if exists GENRE_REG cascade;
+drop table if exists MPA cascade;
+drop table if exists LIKES cascade;
+drop table if exists USERS cascade;
+
 CREATE TABLE IF NOT EXISTS PUBLIC.GENRE
 (
     GENRE_ID INTEGER auto_increment
