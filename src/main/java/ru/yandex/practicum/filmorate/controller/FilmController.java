@@ -39,12 +39,12 @@ public class FilmController {
      * @param sort  сортировка по убыванию/возрастанию like
      * @return Список филмьов
      */
-//    @GetMapping("/popular")
-//    public List<Film> getPopularFilms(
-//            @RequestParam(value = "count", defaultValue = "10") Integer count,
-//            @RequestParam(value = "sort", defaultValue = DESCENDING_ORDER) String sort) {
-//        return filmDbService.getPopularFilms(count, sort);
-//    }
+    @GetMapping("/popular")
+    public List<Film> getPopularFilms(
+            @RequestParam(value = "count", defaultValue = "10") Integer count,
+            @RequestParam(value = "sort", defaultValue = DESCENDING_ORDER) String sort) {
+        return filmDbService.getPopularFilms(count, sort);
+    }
 
     /**
      * Метод (эндпоинт) получения фильма по id
@@ -63,8 +63,8 @@ public class FilmController {
      * @param film принятый объект фильма по эндпоинту
      * @return созданный объект фильма
      */
-    @PostMapping()
-    public Film create(@Valid @RequestBody Film film) throws SQLException {
+    @PostMapping
+    public Film create(@RequestBody @Valid Film film) throws SQLException {
         return filmDbService.create(film);
     }
 
@@ -90,17 +90,17 @@ public class FilmController {
     public Film update(@Valid @RequestBody Film film) throws SQLException {
         return filmDbService.update(film);
     }
-//
-//    /**
-//     * Метод (эндпоинт) удаления Like фильму
-//     *
-//     * @param id     id фильма
-//     * @param userId id пользователя
-//     * @return изменённый объект фильма
-//     */
-//    @DeleteMapping("/{id}/like/{userId}")
-//    public Film deleteLike(@PathVariable Long id, @PathVariable Long userId) {
-//        return filmService.deleteLike(id, userId);
-//    }
+
+    /**
+     * Метод (эндпоинт) удаления Like фильму
+     *
+     * @param id     id фильма
+     * @param userId id пользователя
+     * @return изменённый объект фильма
+     */
+    @DeleteMapping("/{id}/like/{userId}")
+    public Film deleteLike(@PathVariable Long id, @PathVariable Long userId) {
+        return filmDbService.deleteLike(id, userId);
+    }
 
 }

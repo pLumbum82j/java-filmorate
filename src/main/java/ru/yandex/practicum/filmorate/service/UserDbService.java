@@ -5,6 +5,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.exception.UserUnknownException;
+import ru.yandex.practicum.filmorate.exception.UsersAreNotFriendsException;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.storage.friend.FriendDbStorage;
@@ -14,6 +15,7 @@ import ru.yandex.practicum.filmorate.storage.user.UserStorage;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -37,6 +39,34 @@ public class UserDbService {
         log.debug("Получен запрос на список пользователей");
         return new ArrayList<>(userStorage.getUsers().values());
     }
+
+    public List<User> getUserFriends(Long id) {
+        isParameterCheck(id);
+        log.debug("Получен запрос на список друзей пользователя {}", id);
+        return friendStorage.getUserFriends(id);
+    }
+
+    /**
+     * Метод (эндпоинт) получения списка общих друзей двух пользователей по id
+     *
+     * @param firstId  id первого пользователя
+     * @param secondId id второго пользователя
+     * @return список общих друзей двух пользователей
+     */
+    public List<User> getListOfCommonFriends(long firstId, long secondId) {
+        isParameterCheck(firstId);
+        isParameterCheck(secondId);
+        log.debug("Получен запрос на список общих друзей пользователей с ID {} и ID {}", firstId, secondId);
+        return friendStorage.getListOfCommonFriends(firstId, secondId);
+    }
+
+    /**
+     * Метод (эндпоинт) получения списка общих друзей двух пользователей по id
+     *
+     * @param firstId  id первого пользователя
+     * @param secondId id второго пользователя
+     * @return список общих друзей двух пользователей
+     */
 
     /**
      * Метод создания пользователя
@@ -65,7 +95,7 @@ public class UserDbService {
      */
     public User findUserById(Long id) {
         User findUser;
-        if ((findUser = userStorage.findUserById(id)) == null){
+        if ((findUser = userStorage.findUserById(id)) == null) {
             throw new UserUnknownException("Пользователь с ID " + id + " не существует");
         }
         log.debug("Получен запрос на поиск пользователя {}", id);
@@ -82,8 +112,8 @@ public class UserDbService {
         User updateUser = null;
         userStorage.findUserById(user.getId());
         if (isValid(user)) {
-             if ((updateUser = userStorage.update(user)) == null){
-                 throw new UserUnknownException("Пользователь с ID " + user.getId() + " не существует");
+            if ((updateUser = userStorage.update(user)) == null) {
+                throw new UserUnknownException("Пользователь с ID " + user.getId() + " не существует");
             }
             log.debug("Пользователь с логином {} успешно изменён", user.getLogin());
         }
@@ -115,9 +145,32 @@ public class UserDbService {
      * @param secondId id второго пользователя
      */
     public void addFriend(Long firstId, Long secondId) {
+        isParameterCheck(firstId);
+        isParameterCheck(secondId);
         friendStorage.addFriends(firstId, secondId);
         log.debug("Теперь пользователь ID {} является другом пользователя ID {}", firstId, secondId);
 
     }
 
+    /**
+     * Метод удаления пользователя из друзей
+     *
+     * @param firstId  id первого пользователя
+     * @param secondId id второго пользователя
+     */
+    public void deleteFriend(Long firstId, Long secondId) {
+        isParameterCheck(firstId);
+        isParameterCheck(secondId);
+        friendStorage.deleteFriends(firstId, secondId);
+        log.debug("Теперь пользователь ID {} не является другом пользователя ID {}", firstId, secondId);
+    }
+
+    public void isParameterCheck(Long id) {
+        if (id < 0) {
+            log.debug("Пользователь с отрицательным id {} не может существовать.", id);
+            throw new UserUnknownException(
+                    String.format("Пользователь с отрицательным id %d не может существовать.", id));
+
+        }
+    }
 }

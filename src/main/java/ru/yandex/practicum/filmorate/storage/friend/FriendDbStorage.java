@@ -16,10 +16,9 @@ public class FriendDbStorage implements FriendStorage {
     private final JdbcTemplate jdbcTemplate;
 
     public void addFriends(long friend1, long friend2) {
-        String sql = "MERGE INTO FRIENDS f USING (VALUES (?,?)) S(friend1, friend2)\n" +
-       // String sql = "MERGE INTO FRIENDS f USING (VALUES (friend1,friend2))" +
-                "ON f.FIRST_USER_ID = friend1 AND f.SECOND_USER_ID = friend2 \n" +
-                "WHEN NOT MATCHED THEN INSERT VALUES ( friend1, friend2)";
+        String sql = "MERGE INTO FRIENDS F USING (VALUES (?,?)) V (friend1, friend2)" +
+                "ON F.FIRST_USER_ID = friend1 AND F.SECOND_USER_ID = friend2 " +
+                "WHEN NOT MATCHED THEN INSERT (FIRST_USER_ID, SECOND_USER_ID)  VALUES (friend1, friend2)";
         try {
             jdbcTemplate.update(sql, friend1, friend2);
         } catch (DataIntegrityViolationException e) {
@@ -30,32 +29,32 @@ public class FriendDbStorage implements FriendStorage {
     }
 
     public void deleteFriends(long friend1, long friend2) {
-        String sql = "MERGE INTO FRIENDS f USING (VALUES (?,?)) S(friend1, friend2)\n" +
-                "ON f.FIRST_USER_ID = S.friend1 AND f.SECOND_USER_ID = S.friend2 \n" +
+        String sql = "MERGE INTO FRIENDS F USING (VALUES (?,?)) V (friend1, friend2)" +
+                "ON F.FIRST_USER_ID = friend1 AND F.SECOND_USER_ID = friend2 " +
                 "WHEN  MATCHED THEN DELETE";
 
         jdbcTemplate.update(sql, friend1, friend2);
     }
 
     public List<User> getUserFriends(long id) {
-        String sql = "SELECT  UF.id, UF.email, UF.login, UF.name, UF.birthday " +
+        String sql = "SELECT  U.USER_ID, U.EMAIL, U.LOGIN, U.NAME, U.BIRTHDAY " +
                 "FROM FRIENDS F " +
-                "LEFT JOIN USER_FILMORATE UF on f.FRIEND2_ID = UF.ID " +
-                "WHERE FRIEND1_ID = ?";
+                "LEFT JOIN USERS U ON F.SECOND_USER_ID = U.USER_ID " +
+                "WHERE F.FIRST_USER_ID = ?";
 
         return jdbcTemplate.query(sql, (rs, rowNum) -> User.makeUser(rs), id);
     }
 
-    public List<User> getCommonFriends(long friend1, long friend2) {
+    public List<User> getListOfCommonFriends(long friend1, long friend2) {
 
-        String sql2 = "SELECT UF.ID, UF.EMAIL, UF.LOGIN, UF.NAME, UF.BIRTHDAY \n" +
-                "FROM FRIENDSHIP F\n" +
-                "INNER JOIN USER_FILMORATE UF ON F.FRIEND2_ID = UF.ID\n" +
-                "WHERE FRIEND1_ID = ? AND FRIEND2_ID IN (\n" +
-                "        SELECT FRIEND2_ID\n" +
-                "        FROM FRIENDSHIP\n" +
-                "        WHERE FRIEND1_ID = ?\n" +
-                "     )";
+        String sql2 = "SELECT  U.USER_ID, U.EMAIL, U.LOGIN, U.NAME, U.BIRTHDAY " +
+                "FROM FRIENDS F " +
+                "INNER JOIN USERS U ON F.SECOND_USER_ID = U.USER_ID " +
+                "WHERE F.FIRST_USER_ID = ? AND F.SECOND_USER_ID IN " +
+                "(SELECT SECOND_USER_ID " +
+                "FROM FRIENDS " +
+                "WHERE FIRST_USER_ID = ?)";
+
 
         return jdbcTemplate.query(sql2, (rs, rowNum) -> User.makeUser(rs), friend1, friend2);
     }

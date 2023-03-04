@@ -31,6 +31,7 @@ CREATE TABLE IF NOT EXISTS PUBLIC.FILMS
     DURATION    BIGINT,
     RATE      INTEGER,
     MPA_ID      INTEGER,
+    LIKE_AMOUT    BIGINT,
     constraint FILMS_FK_MPA
         foreign key (MPA_ID) references PUBLIC.MPA
 );

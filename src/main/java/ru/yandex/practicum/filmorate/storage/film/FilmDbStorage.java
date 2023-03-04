@@ -11,6 +11,9 @@ import org.springframework.stereotype.Repository;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.Genre;
 import ru.yandex.practicum.filmorate.model.Mpa;
+import ru.yandex.practicum.filmorate.storage.genre.GenreStorage;
+import ru.yandex.practicum.filmorate.storage.like.LikeStorage;
+import ru.yandex.practicum.filmorate.storage.mpa.MpaStorage;
 
 import javax.sql.DataSource;
 import java.sql.Connection;
@@ -25,12 +28,21 @@ public class FilmDbStorage implements FilmStorage {
 
     private final JdbcTemplate jdbcTemplate;
     private final SimpleJdbcInsert insertIntoFilm;
+    private final MpaStorage mpaStorage;
+    private final GenreStorage genreStorage;
+    private final LikeStorage likeStorage;
 
-    @Autowired
-    public FilmDbStorage(JdbcTemplate jdbcTemplate) {
+    public FilmDbStorage(JdbcTemplate jdbcTemplate, MpaStorage mpaStorage, GenreStorage genreStorage, LikeStorage likeStorage) {
         this.jdbcTemplate = jdbcTemplate;
+        this.mpaStorage = mpaStorage;
+        this.genreStorage = genreStorage;
+        this.likeStorage = likeStorage;
         insertIntoFilm = new SimpleJdbcInsert(this.jdbcTemplate).withTableName("films").usingGeneratedKeyColumns("film_id");
     }
+
+
+    @Autowired
+
 
     @Override
     public Map<Long, Film> getFilms() {
@@ -57,18 +69,41 @@ public class FilmDbStorage implements FilmStorage {
 
     }
 
-    private Film makeFilm(ResultSet rs, int rowNum) throws SQLException {
+    public List<Film> getPopularFilms(Integer count, String sort) {
+        String sql = String.format(
+                "SELECT F.*,M.NAME as MNAME " +
+                        "FROM FILMS F JOIN MPA M ON F.MPA_ID = M.MPA_ID " +
+                        "ORDER BY LIKE_AMOUT %s " +
+                        "LIMIT %d", sort, count
+        );
+        List<Film> films = jdbcTemplate.query(sql, (rs, rowNum) -> makeFilm(rs, 2));
+//        films.forEach((film) -> {
+//            // film.set(likeDao.getFilmLikes(film.getId()));
+//             //film.setGenres(genreStorage.getGenreById(film.getId()));
+//           // film.setMpa(mpaStorage.getMpaById(film.getMpa().getId()));
+//        });
+        return films;
+    }
 
-        return Film.builder()
-                .id(rs.getLong("FILM_ID"))
-                .name(rs.getString("NAME"))
-                .description(rs.getString("DESCRIPTION"))
-                .releaseDate(rs.getDate("RELEASEDATE").toLocalDate())
-                .duration(rs.getLong("DURATION"))
-                .mpa(new Mpa(rs.getInt("MPA_ID"), rs.getString("MNAME")))
-                .rate(rs.getInt("RATE"))
-                .genres(getGenreByFilmId(rs.getLong("FILM_ID")))
-                .build();
+    private Film makeFilm(ResultSet rs, int rowNum) {
+
+        Film film;
+        try {
+            film = Film.builder()
+                    .id(rs.getLong("FILM_ID"))
+                    .name(rs.getString("NAME"))
+                    .description(rs.getString("DESCRIPTION"))
+                    .releaseDate(rs.getDate("RELEASEDATE").toLocalDate())
+                    .duration(rs.getLong("DURATION"))
+                    .mpa(new Mpa(rs.getInt("MPA_ID"), rs.getString("MNAME")))
+                    .rate(rs.getInt("RATE"))
+                    .genres(getGenreByFilmId(rs.getLong("FILM_ID")))
+                    .build();
+
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+        return film;
     }
 
     private List<Genre> getGenreByFilmId(Long filmId) {
@@ -135,19 +170,19 @@ public class FilmDbStorage implements FilmStorage {
     }
 
     public void addGenresByFilmId(long filmId, List<Genre> genres) throws SQLException {
-//       for (Genre genre : genres) {
-//           // String sqlQuery = "INSERT INTO GENRE_REG (GENRE_ID, FILM_ID) values (?,?)";
-//            String sqlQuery = "MERGE INTO GENRE_REG G USING (VALUES (?,?)) S(GENRE_ID, FILM_ID)\n" +
-//                    "ON G.GENRE_ID = S.GENRE_ID AND G.FILM_ID = S.FILM_ID \n" +
-//                    "WHEN NOT MATCHED THEN INSERT VALUES (S.GENRE_ID, S.FILM_ID)";
-//            jdbcTemplate.update(sqlQuery, genre.getId(), filmId);
-//        }
-//    }
-    for (Genre genre : genres) {
-            String sqlQuery = "INSERT INTO GENRE_REG (GENRE_ID, FILM_ID) values (?,?)";
+        for (Genre genre : genres) {
+            // String sqlQuery = "INSERT INTO GENRE_REG (GENRE_ID, FILM_ID) values (?,?)";
+            String sqlQuery = "MERGE INTO GENRE_REG G USING (VALUES (?,?)) S(GENRE_ID, FILM_ID)\n" +
+                    "ON G.GENRE_ID = S.GENRE_ID AND G.FILM_ID = S.FILM_ID \n" +
+                    "WHEN NOT MATCHED THEN INSERT (GENRE_ID, FILM_ID) VALUES (S.GENRE_ID, S.FILM_ID)";
             jdbcTemplate.update(sqlQuery, genre.getId(), filmId);
         }
     }
+//    for (Genre genre : genres) {
+//            String sqlQuery = "INSERT INTO GENRE_REG (GENRE_ID, FILM_ID) values (?,?)";
+//            jdbcTemplate.update(sqlQuery, genre.getId(), filmId);
+//        }
+//    }
 
 
     @Override

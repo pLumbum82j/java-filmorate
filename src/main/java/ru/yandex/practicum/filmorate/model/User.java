@@ -21,11 +21,11 @@ public class User {
 
 
     public static User makeUser(ResultSet rs) throws SQLException {
-        long id = rs.getLong("id");
-        String email = rs.getString("email");
-        String login = rs.getString("login");
-        String name = rs.getString("name");
-        LocalDate birthday =  rs.getDate("birthday").toLocalDate();
+        long id = rs.getLong("USER_ID");
+        String email = rs.getString("EMAIL");
+        String login = rs.getString("LOGIN");
+        String name = rs.getString("NAME");
+        LocalDate birthday =  rs.getDate("BIRTHDAY").toLocalDate();
 
         return User.builder()
                 .id(id)

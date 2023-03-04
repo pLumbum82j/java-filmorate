@@ -39,29 +39,29 @@ public class UserController {
         return userDbService.findUserById(id);
     }
 
-//    /**
-//     * Метод (эндпоинт) получения списка друзей пользователя по id
-//     *
-//     * @param id id пользователя
-//     * @return список друзей пользователя
-//     */
-//    @GetMapping("/{id}/friends")
-//    public List<User> getUserFriends(@PathVariable("id") Long id) {
-//        return userService.getUserFriends(id);
-//    }
-//
-//    /**
-//     * Метод (эндпоинт) получения списка общих друзей двух пользователей по id
-//     *
-//     * @param id      id первого пользователя
-//     * @param otherId id второго пользователя
-//     * @return список общих друзей двух пользователей
-//     */
-//    @GetMapping("/{id}/friends/common/{otherId}")
-//    public List<User> getListOfCommonFriends(@PathVariable Long id, @PathVariable Long otherId) {
-//        return userService.getListOfCommonFriends(id, otherId);
-//    }
-//
+    /**
+     * Метод (эндпоинт) получения списка друзей пользователя по id
+     *
+     * @param id id пользователя
+     * @return список друзей пользователя
+     */
+    @GetMapping("/{id}/friends")
+    public List<User> getUserFriends(@PathVariable("id") Long id) {
+        return userDbService.getUserFriends(id);
+    }
+
+    /**
+     * Метод (эндпоинт) получения списка общих друзей двух пользователей по id
+     *
+     * @param id      id первого пользователя
+     * @param otherId id второго пользователя
+     * @return список общих друзей двух пользователей
+     */
+    @GetMapping("/{id}/friends/common/{otherId}")
+    public List<User> getListOfCommonFriends(@PathVariable Long id, @PathVariable Long otherId) {
+        return userDbService.getListOfCommonFriends(id, otherId);
+    }
+
     /**
      * Метод (эндпоинт) создания пользователя
      *
@@ -95,14 +95,14 @@ public class UserController {
         userDbService.addFriend(id, friendId);
     }
 
-//    /**
-//     * Метод (эндпоинт) удаления пользователя из друзей
-//     *
-//     * @param id       id первого пользователя
-//     * @param friendId id второго пользователя
-//     */
-//    @DeleteMapping("/{id}/friends/{friendId}")
-//    public void deleteFriend(@PathVariable Long id, @PathVariable Long friendId) {
-//        userService.deleteFriend(id, friendId);
-//    }
+    /**
+     * Метод (эндпоинт) удаления пользователя из друзей
+     *
+     * @param id       id первого пользователя
+     * @param friendId id второго пользователя
+     */
+    @DeleteMapping("/{id}/friends/{friendId}")
+    public void deleteFriend(@PathVariable Long id, @PathVariable Long friendId) {
+        userDbService.deleteFriend(id, friendId);
+    }
 }

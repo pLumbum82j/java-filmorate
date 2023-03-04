@@ -15,6 +15,9 @@ import ru.yandex.practicum.filmorate.storage.user.UserStorage;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
+
+import static ru.yandex.practicum.filmorate.Constants.SORTS;
 
 @Slf4j
 @Service
@@ -33,6 +36,24 @@ public class FilmDbService {
 
     public List<Film> getAllFilms() {
         return new ArrayList<>(filmStorage.getFilms().values());
+    }
+
+    /**
+     * Метод получения списка популярных фильмов
+     *
+     * @param count количество фильмов в списке
+     * @param sort  сортировка по убыванию/возрастанию like
+     * @return Список филмьов
+     */
+    public List<Film> getPopularFilms(Integer count, String sort) {
+        if (!SORTS.contains(sort)) {
+            throw new IncorrectParameterException("Некорректное значение sort, введите: asc или desc");
+        }
+        if (count <= 0) {
+            throw new IncorrectParameterException("Значение count не может быть меньше 1");
+        }
+        log.debug("Получен запрос на список из {} популярных фильмов", count);
+        return filmStorage.getPopularFilms(count, sort);
     }
 
     public Film create(Film film) throws SQLException {
@@ -60,15 +81,26 @@ public class FilmDbService {
     }
 
     public Film addLike(Long filmId, Long userId) {
-        if (filmStorage.findFilmById(filmId) == null) {
-            throw new UpdateFilmUnknownException("Фильм с ID " + filmId + " не найден");
-        }
-        if (userStorage.isContainUserId(userId)) {
-            throw new UserUnknownException("Пользователь с ID " + userId + " не существует");
-        }
+        isParameterCheck(filmId, userId);
         log.debug("Получен запрос на добавления Like пользователя с ID {} в фильм с ID {}", userId, filmId);
         likeStorage.addLike(filmId, userId);
         return filmStorage.findFilmById(filmId);
+    }
+
+    public Film deleteLike(long filmId, long userId) {
+        isParameterCheck(filmId, userId);
+        log.debug("Получен запрос на удаление Like пользователя с ID {} в фильм с ID {}", userId, filmId);
+        likeStorage.deleteLike(filmId, userId);
+        return filmStorage.findFilmById(filmId);
+    }
+
+    private void isParameterCheck(long filmId, long userId) {
+        if (filmId < 0) {
+            throw new FilmUnknownException("Фильм с ID " + filmId + " не может ровняться нулю или быть отрицательным");
+        }
+        if (userId < 0) {
+            throw new UserUnknownException("Фильм с ID " + filmId + " не может ровняться нулю или быть отрицательным");
+        }
     }
 
 
