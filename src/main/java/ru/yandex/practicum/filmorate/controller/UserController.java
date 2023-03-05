@@ -1,9 +1,8 @@
 package ru.yandex.practicum.filmorate.controller;
 
-import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.filmorate.model.User;
-import ru.yandex.practicum.filmorate.service.UserDbService;
 import ru.yandex.practicum.filmorate.service.UserService;
 
 import java.util.List;
@@ -12,11 +11,14 @@ import java.util.List;
  * Класс Контроллер по энпоинту Users
  */
 @RestController
-@RequiredArgsConstructor
 @RequestMapping("/users")
 public class UserController {
 
-    private final UserDbService userDbService;
+    private final UserService userService;
+
+    public UserController(@Qualifier("userDbService") UserService userService) {
+        this.userService = userService;
+    }
 
     /**
      * Метод (эндпоинт) получения списка пользователей
@@ -25,7 +27,7 @@ public class UserController {
      */
     @GetMapping()
     public List<User> getUsers() {
-        return userDbService.getUsers();
+        return userService.getUsers();
     }
 
     /**
@@ -36,7 +38,7 @@ public class UserController {
      */
     @GetMapping("/{id}")
     public User getUsersById(@PathVariable("id") Long id) {
-        return userDbService.findUserById(id);
+        return userService.findUserById(id);
     }
 
     /**
@@ -47,7 +49,7 @@ public class UserController {
      */
     @GetMapping("/{id}/friends")
     public List<User> getUserFriends(@PathVariable("id") Long id) {
-        return userDbService.getUserFriends(id);
+        return userService.getUserFriends(id);
     }
 
     /**
@@ -59,7 +61,7 @@ public class UserController {
      */
     @GetMapping("/{id}/friends/common/{otherId}")
     public List<User> getListOfCommonFriends(@PathVariable Long id, @PathVariable Long otherId) {
-        return userDbService.getListOfCommonFriends(id, otherId);
+        return userService.getListOfCommonFriends(id, otherId);
     }
 
     /**
@@ -70,7 +72,7 @@ public class UserController {
      */
     @PostMapping()
     public User create(@RequestBody User user) {
-        return userDbService.create(user);
+        return userService.create(user);
     }
 
     /**
@@ -81,7 +83,7 @@ public class UserController {
      */
     @PutMapping()
     public User update(@RequestBody User user) {
-        return userDbService.update(user);
+        return userService.update(user);
     }
 
     /**
@@ -92,7 +94,7 @@ public class UserController {
      */
     @PutMapping("/{id}/friends/{friendId}")
     public void addFriend(@PathVariable Long id, @PathVariable Long friendId) {
-        userDbService.addFriend(id, friendId);
+        userService.addFriend(id, friendId);
     }
 
     /**
@@ -103,6 +105,6 @@ public class UserController {
      */
     @DeleteMapping("/{id}/friends/{friendId}")
     public void deleteFriend(@PathVariable Long id, @PathVariable Long friendId) {
-        userDbService.deleteFriend(id, friendId);
+        userService.deleteFriend(id, friendId);
     }
 }

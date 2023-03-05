@@ -3,25 +3,23 @@ package ru.yandex.practicum.filmorate.service;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
-import ru.yandex.practicum.filmorate.exception.*;
+import ru.yandex.practicum.filmorate.exception.FilmUnknownException;
+import ru.yandex.practicum.filmorate.exception.IncorrectParameterException;
+import ru.yandex.practicum.filmorate.exception.UpdateFilmUnknownException;
+import ru.yandex.practicum.filmorate.exception.UserUnknownException;
 import ru.yandex.practicum.filmorate.model.Film;
-import ru.yandex.practicum.filmorate.storage.film.FilmDbStorage;
 import ru.yandex.practicum.filmorate.storage.film.FilmStorage;
-import ru.yandex.practicum.filmorate.storage.genre.GenreStorage;
-import ru.yandex.practicum.filmorate.storage.like.LikeDbStorage;
 import ru.yandex.practicum.filmorate.storage.like.LikeStorage;
 import ru.yandex.practicum.filmorate.storage.user.UserStorage;
 
-import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import static ru.yandex.practicum.filmorate.Constants.SORTS;
 
 @Slf4j
 @Service
-public class FilmDbService {
+public class FilmDbService implements FilmService {
     private final FilmStorage filmStorage;
     private final UserStorage userStorage;
     private final LikeStorage likeStorage;
@@ -34,17 +32,12 @@ public class FilmDbService {
         this.likeStorage = likeStorage;
     }
 
-    public List<Film> getAllFilms() {
+    @Override
+    public List<Film> getFilms() {
         return new ArrayList<>(filmStorage.getFilms().values());
     }
 
-    /**
-     * Метод получения списка популярных фильмов
-     *
-     * @param count количество фильмов в списке
-     * @param sort  сортировка по убыванию/возрастанию like
-     * @return Список филмьов
-     */
+    @Override
     public List<Film> getPopularFilms(Integer count, String sort) {
         if (!SORTS.contains(sort)) {
             throw new IncorrectParameterException("Некорректное значение sort, введите: asc или desc");
@@ -56,13 +49,32 @@ public class FilmDbService {
         return filmStorage.getPopularFilms(count, sort);
     }
 
-    public Film create(Film film) throws SQLException {
+    @Override
+    public Film findFilmById(Long id) {
+        Film findFilm;
+        if ((findFilm = filmStorage.findFilmById(id)) == null) {
+            throw new FilmUnknownException("Фильм с ID " + id + " не существует");
+        }
+        return findFilm;
+    }
+
+    @Override
+    public Film create(Film film) {
         Film resultFilm = filmStorage.create(film);
         log.debug("Фильм {} создан", film.getName());
         return resultFilm;
     }
 
-    public Film update(Film film) throws SQLException {
+    @Override
+    public Film addLike(Long filmId, Long userId) {
+        isParameterCheck(filmId, userId);
+        log.debug("Получен запрос на добавления Like пользователя с ID {} в фильм с ID {}", userId, filmId);
+        likeStorage.addLike(filmId, userId);
+        return filmStorage.findFilmById(filmId);
+    }
+
+    @Override
+    public Film update(Film film) {
         if (filmStorage.findFilmById(film.getId()) != null) {
             log.debug("Получен запрос на обновление Фильма с ID " + film.getId());
             Film updateFilm = filmStorage.update(film);
@@ -72,37 +84,30 @@ public class FilmDbService {
         }
     }
 
-    public Film findFilmById(Long id) {
-        Film findFilm;
-        if ((findFilm = filmStorage.findFilmById(id)) == null) {
-            throw new FilmUnknownException("Фильм с ID " + id + " не существует");
-        }
-        return findFilm;
-    }
-
-    public Film addLike(Long filmId, Long userId) {
-        isParameterCheck(filmId, userId);
-        log.debug("Получен запрос на добавления Like пользователя с ID {} в фильм с ID {}", userId, filmId);
-        likeStorage.addLike(filmId, userId);
-        return filmStorage.findFilmById(filmId);
-    }
-
-    public Film deleteLike(long filmId, long userId) {
+    @Override
+    public Film deleteLike(Long filmId, Long userId) {
         isParameterCheck(filmId, userId);
         log.debug("Получен запрос на удаление Like пользователя с ID {} в фильм с ID {}", userId, filmId);
         likeStorage.deleteLike(filmId, userId);
         return filmStorage.findFilmById(filmId);
     }
 
+    /**
+     * Метод проверки входных параметров filmId и userId на отрицательное значение
+     *
+     * @param filmId Входной параметр filmId
+     * @param userId Входной параметр userId
+     */
     private void isParameterCheck(long filmId, long userId) {
         if (filmId < 0) {
+            log.debug("Фильм с отрицательным id {} не может существовать.", filmId);
             throw new FilmUnknownException("Фильм с ID " + filmId + " не может ровняться нулю или быть отрицательным");
         }
         if (userId < 0) {
-            throw new UserUnknownException("Фильм с ID " + filmId + " не может ровняться нулю или быть отрицательным");
+            log.debug("Пользователь с отрицательным id {} не может существовать.", userId);
+            throw new UserUnknownException("Фильм с ID " + userId + " не может ровняться нулю или быть отрицательным");
         }
     }
-
 
 }
 

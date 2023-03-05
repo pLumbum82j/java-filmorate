@@ -7,7 +7,7 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * Интерфейс отвечаюзий за поведение объектов Film в памяти
+ * Интерфейс отвечающий за поведение объектов Film в памяти
  */
 public interface FilmStorage {
 
@@ -32,7 +32,7 @@ public interface FilmStorage {
      * @param film принятый объект фильма по эндпоинту
      * @return созданный объект фильма
      */
-    Film create(Film film) throws SQLException;
+    Film create(Film film);
 
     /**
      * Метод обновления фильма
@@ -40,7 +40,14 @@ public interface FilmStorage {
      * @param film Принятый объект фильма по эндпоинту
      * @return изменённый объект фильма
      */
-    Film update(Film film) throws SQLException;
+    Film update(Film film);
 
+    /**
+     * Метод получения списка популярных фильмов
+     *
+     * @param count количество фильмов в списке
+     * @param sort  сортировка по убыванию/возрастанию like
+     * @return Список фильмов
+     */
     List<Film> getPopularFilms(Integer count, String sort);
 }

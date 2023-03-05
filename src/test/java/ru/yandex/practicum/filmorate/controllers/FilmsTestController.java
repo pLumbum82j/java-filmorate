@@ -1,5 +1,6 @@
 package ru.yandex.practicum.filmorate.controllers;
 
+import org.aspectj.lang.annotation.Before;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -8,7 +9,7 @@ import ru.yandex.practicum.filmorate.exception.FilmUnknownException;
 import ru.yandex.practicum.filmorate.exception.IncorrectParameterException;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.User;
-import ru.yandex.practicum.filmorate.service.FilmService;
+import ru.yandex.practicum.filmorate.service.FilmInMemoryService;
 import ru.yandex.practicum.filmorate.storage.film.InMemoryFilmStorage;
 import ru.yandex.practicum.filmorate.storage.user.InMemoryUserStorage;
 
@@ -33,6 +34,11 @@ public class FilmsTestController {
     User testUser;
     User testUser2;
 
+    @Before("")
+    public void before() {
+        InMemoryUserStorage userStorage = new InMemoryUserStorage();
+        filmController = new FilmController(new FilmInMemoryService(new InMemoryFilmStorage(), userStorage));
+    }
 
     @BeforeEach
     public void beforeEach() {
@@ -51,7 +57,7 @@ public class FilmsTestController {
         InMemoryUserStorage userStorage = new InMemoryUserStorage();
         userStorage.create(testUser);
         userStorage.create(testUser2);
-        filmController = new FilmController(new FilmService(new InMemoryFilmStorage(), userStorage));
+        filmController = new FilmController(new FilmInMemoryService(new InMemoryFilmStorage(), userStorage));
         testFilm = Film.builder()
                 .name("Парк Периода Яндекс")
                 .description("Прохождение очень сложных основ Java в тропических джунглях")

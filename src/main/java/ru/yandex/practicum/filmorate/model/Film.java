@@ -1,14 +1,11 @@
 package ru.yandex.practicum.filmorate.model;
 
-import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
-import lombok.RequiredArgsConstructor;
 import ru.yandex.practicum.filmorate.validator.MovieBirthday;
 
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 import java.time.LocalDate;
 import java.util.HashSet;
@@ -34,5 +31,6 @@ public class Film {
     private final Set<Long> likes = new HashSet<>();
     private Mpa mpa;
     private List<Genre> genres;
-
 }
+
+

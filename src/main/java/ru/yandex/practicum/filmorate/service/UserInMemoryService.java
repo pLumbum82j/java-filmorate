@@ -4,27 +4,27 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
+import ru.yandex.practicum.filmorate.exception.UserIsAlreadyFriendException;
 import ru.yandex.practicum.filmorate.exception.UserUnknownException;
+import ru.yandex.practicum.filmorate.exception.UsersAreNotFriendsException;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.User;
-import ru.yandex.practicum.filmorate.storage.friend.FriendStorage;
 import ru.yandex.practicum.filmorate.storage.user.UserStorage;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Service
-public class UserDbService implements UserService {
+public class UserInMemoryService implements UserService {
 
     private final UserStorage userStorage;
-    private final FriendStorage friendStorage;
 
     @Autowired
-    public UserDbService(@Qualifier("userDbStorage") UserStorage userStorage, FriendStorage friendStorage) {
+    public UserInMemoryService(@Qualifier("inMemoryUserStorage") UserStorage userStorage) {
         this.userStorage = userStorage;
-        this.friendStorage = friendStorage;
     }
 
     @Override
@@ -35,71 +35,90 @@ public class UserDbService implements UserService {
 
     @Override
     public User findUserById(Long id) {
-        isParameterCheck(id);
-        User findUser;
-        if ((findUser = userStorage.findUserById(id)) == null) {
-            throw new UserUnknownException("Пользователь с ID " + id + " не существует");
-        }
+        containUserId(id);
         log.debug("Получен запрос на поиск пользователя {}", id);
-        return findUser;
+        return userStorage.findUserById(id);
     }
 
     @Override
     public List<User> getUserFriends(Long id) {
-        isParameterCheck(id);
+        containUserId(id);
         log.debug("Получен запрос на список друзей пользователя {}", id);
-        return friendStorage.getUserFriends(id);
+        return userStorage.findUserById(id)
+                .getFriendsList()
+                .stream()
+                .map(userStorage::findUserById)
+                .collect(Collectors.toList());
     }
 
     @Override
     public List<User> getListOfCommonFriends(long firstId, long secondId) {
-        isParameterCheck(firstId);
-        isParameterCheck(secondId);
+        containUserId(firstId);
+        containUserId(secondId);
         log.debug("Получен запрос на список общих друзей пользователей с ID {} и ID {}", firstId, secondId);
-        return friendStorage.getListOfCommonFriends(firstId, secondId);
+        List<User> friendsFirstUser = userStorage.findUserById(firstId)
+                .getFriendsList()
+                .stream()
+                .map(userStorage::findUserById)
+                .collect(Collectors.toList());
+        List<User> friendsSecondUser = userStorage.findUserById(secondId)
+                .getFriendsList()
+                .stream()
+                .map(userStorage::findUserById)
+                .collect(Collectors.toList());
+
+        return friendsFirstUser.stream().filter(friendsSecondUser::contains).collect(Collectors.toList());
     }
 
     @Override
     public User create(User user) {
-        User createUser = null;
         if (isValid(user)) {
             if ((user.getName() == null) || (user.getName().isBlank())) {
                 user.setName(user.getLogin());
                 log.debug("Имя для отображения пустое — в таком случае будет использован логин");
             }
-            createUser = userStorage.create(user);
+            userStorage.create(user);
             log.debug("Пользователь с логином {} успешно создан", user.getLogin());
         }
-        return createUser;
+        return user;
     }
 
     @Override
     public User update(User user) {
-        User updateUser = null;
-        userStorage.findUserById(user.getId());
+        containUserId(user.getId());
         if (isValid(user)) {
-            if ((updateUser = userStorage.update(user)) == null) {
-                throw new UserUnknownException("Пользователь с ID " + user.getId() + " не существует");
-            }
+            userStorage.update(user);
             log.debug("Пользователь с логином {} успешно изменён", user.getLogin());
         }
-        return updateUser;
+        return user;
     }
 
     @Override
     public void addFriend(Long firstId, Long secondId) {
-        isParameterCheck(firstId);
-        isParameterCheck(secondId);
-        friendStorage.addFriends(firstId, secondId);
+        containUserId(firstId);
+        containUserId(secondId);
+        if (isFriendshipCheck(firstId, secondId)) {
+            throw new UserIsAlreadyFriendException("Пользователь с ID" + firstId + " уже является другом пользователя ID" + secondId);
+        }
+        userStorage.findUserById(firstId).getFriendsList().add(secondId);
+        userStorage.findUserById(secondId).getFriendsList().add(firstId);
+        userStorage.update(userStorage.findUserById(firstId));
+        userStorage.update(userStorage.findUserById(secondId));
         log.debug("Теперь пользователь ID {} является другом пользователя ID {}", firstId, secondId);
 
     }
 
     @Override
     public void deleteFriend(Long firstId, Long secondId) {
-        isParameterCheck(firstId);
-        isParameterCheck(secondId);
-        friendStorage.deleteFriends(firstId, secondId);
+        containUserId(firstId);
+        containUserId(secondId);
+        if (!isFriendshipCheck(firstId, secondId)) {
+            throw new UsersAreNotFriendsException("Пользователь с ID" + firstId + " не является другом пользователя ID" + secondId);
+        }
+        userStorage.findUserById(firstId).getFriendsList().remove(secondId);
+        userStorage.findUserById(secondId).getFriendsList().remove(firstId);
+        userStorage.update(userStorage.findUserById(firstId));
+        userStorage.update(userStorage.findUserById(secondId));
         log.debug("Теперь пользователь ID {} не является другом пользователя ID {}", firstId, secondId);
     }
 
@@ -122,15 +141,24 @@ public class UserDbService implements UserService {
     }
 
     /**
-     * Метод проверки входных параметров id на отрицательное значение
+     * Метод проверки присутсивя пользователя на сервере
      *
-     * @param id Входной параметр id
+     * @param id id пользователя
      */
-    public void isParameterCheck(Long id) {
-        if (id < 0) {
-            log.debug("Пользователь с отрицательным id {} не может существовать.", id);
-            throw new UserUnknownException("Пользователь с отрицательным id " + id + " не может существовать.");
-
+    private void containUserId(long id) {
+        if (!userStorage.getUsers().containsKey(id)) {
+            throw new UserUnknownException("Пользователь с ID " + id + " не существует");
         }
+    }
+
+    /**
+     * Метод проверки дружбы между двумя пользователями
+     *
+     * @param firstId  id первого пользователя
+     * @param secondId id второго пользователя
+     * @return Возвращаем true/false при прохождении валидации
+     */
+    private boolean isFriendshipCheck(Long firstId, Long secondId) {
+        return userStorage.getUsers().get(firstId).getFriendsList().contains(secondId);
     }
 }

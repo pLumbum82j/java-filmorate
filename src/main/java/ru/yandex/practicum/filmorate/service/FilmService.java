@@ -1,39 +1,10 @@
 package ru.yandex.practicum.filmorate.service;
 
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.stereotype.Service;
-import ru.yandex.practicum.filmorate.exception.FilmUnknownException;
-import ru.yandex.practicum.filmorate.exception.IncorrectParameterException;
-import ru.yandex.practicum.filmorate.exception.UserUnknownException;
 import ru.yandex.practicum.filmorate.model.Film;
-import ru.yandex.practicum.filmorate.model.Mpa;
-import ru.yandex.practicum.filmorate.storage.film.FilmDbStorage;
-import ru.yandex.practicum.filmorate.storage.film.FilmStorage;
-import ru.yandex.practicum.filmorate.storage.user.UserStorage;
 
-import java.sql.SQLException;
-import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
-import static ru.yandex.practicum.filmorate.Constants.DESCENDING_ORDER;
-import static ru.yandex.practicum.filmorate.Constants.SORTS;
-
-@Slf4j
-@Service
-public class FilmService {
-
-    FilmStorage filmStorage;
-    UserStorage userStorage;
-
-    @Autowired
-    public FilmService(@Qualifier("inMemoryFilmStorage") FilmStorage filmStorage,
-                       @Qualifier("inMemoryUserStorage") UserStorage userStorage) {
-        this.filmStorage = filmStorage;
-        this.userStorage = userStorage;
-    }
+public interface FilmService {
 
 
     /**
@@ -41,10 +12,7 @@ public class FilmService {
      *
      * @return Список филмьов
      */
-    public List<Film> getFilms() {
-        log.debug("Получен запрос на список фильмов");
-        return new ArrayList<>(filmStorage.getFilms().values());
-    }
+    List<Film> getFilms();
 
     /**
      * Метод получения списка популярных фильмов
@@ -53,21 +21,7 @@ public class FilmService {
      * @param sort  сортировка по убыванию/возрастанию like
      * @return Список филмьов
      */
-    public List<Film> getPopularFilms(Integer count, String sort) {
-        if (!SORTS.contains(sort)) {
-            throw new IncorrectParameterException("Некорректное значение sort, введите: asc или desc");
-        }
-        if (count <= 0) {
-            throw new IncorrectParameterException("Значение count не может быть меньше 1");
-        }
-        log.debug("Получен запрос на список из {} популярных фильмов", count);
-        return filmStorage.getFilms()
-                .values()
-                .stream()
-                .sorted((f0, f1) -> compare(f0, f1, sort))
-                .limit(count)
-                .collect(Collectors.toList());
-    }
+    List<Film> getPopularFilms(Integer count, String sort);
 
     /**
      * Метод получения фильма по id
@@ -75,10 +29,7 @@ public class FilmService {
      * @param id id фильма
      * @return объект фильма
      */
-    public Film findFilmById(Long id) {
-        containFilmId(id);
-        return filmStorage.findFilmById(id);
-    }
+    Film findFilmById(Long id);
 
     /**
      * Метод создания фильма
@@ -86,11 +37,7 @@ public class FilmService {
      * @param film принятый объект фильма по эндпоинту
      * @return созданный объект фильма
      */
-    public Film create(Film film) throws SQLException {
-        filmStorage.create(film);
-        log.debug("Фильм {} создан", film.getName());
-        return film;
-    }
+    Film create(Film film);
 
     /**
      * Метод добавления Like фильму
@@ -99,15 +46,7 @@ public class FilmService {
      * @param userId id пользователя
      * @return изменённый объект фильма
      */
-    public Film addLike(Long filmId, Long userId) {
-        containFilmId(filmId);
-        if (userStorage.isContainUserId(userId)) {
-            throw new UserUnknownException("Пользователь с ID " + userId + " не существует");
-        }
-        log.debug("Получен запрос на добавления Like пользователя с ID {} в фильм с ID {}", userId, filmId);
-        filmStorage.getFilms().get(filmId).getLikes().add(userId);
-        return filmStorage.findFilmById(filmId);
-    }
+    Film addLike(Long filmId, Long userId);
 
     /**
      * Метод обновления фильма
@@ -115,13 +54,7 @@ public class FilmService {
      * @param film Принятый объект фильма по эндпоинту
      * @return изменённый объект фильма
      */
-    public Film update(Film film) throws SQLException {
-        containFilmId(film.getId());
-        filmStorage.update(film);
-        log.debug("Фильм {} изменён", film.getName());
-
-        return film;
-    }
+    Film update(Film film);
 
     /**
      * Метод удаления Like фильму
@@ -130,40 +63,6 @@ public class FilmService {
      * @param userId id пользователя
      * @return изменённый объект фильма
      */
-    public Film deleteLike(Long filmId, Long userId) {
-        containFilmId(filmId);
-        if (userStorage.isContainUserId(userId)) {
-            throw new UserUnknownException("Пользователь с ID " + userId + " не существует");
-        }
-        log.debug("Получен запрос на удаления Like пользователя с ID {} в фильм с ID {}", userId, filmId);
-        filmStorage.getFilms().get(filmId).getLikes().remove(userId);
-        return filmStorage.findFilmById(filmId);
-    }
+    Film deleteLike(Long filmId, Long userId);
 
-    /**
-     * Метод проверки присутствия фильма на сервере
-     *
-     * @param id id фильма
-     */
-    private void containFilmId(Long id) {
-        if (!filmStorage.getFilms().containsKey(id)) {
-            throw new FilmUnknownException("Фильм с ID " + id + " не существует");
-        }
-    }
-
-    /**
-     * Метод сортировки по убыванию/возрастанию
-     *
-     * @param f0   фильма №1
-     * @param f1   фильма №2
-     * @param sort сортировка убыванию/возрастания
-     * @return отсортированный элемент
-     */
-    private int compare(Film f0, Film f1, String sort) {
-        int result = f0.getLikes().size() - (f1.getLikes().size());
-        if (sort.equals(DESCENDING_ORDER)) {
-            result = -1 * result;
-        }
-        return result;
-    }
 }

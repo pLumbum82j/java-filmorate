@@ -1,7 +1,7 @@
 package ru.yandex.practicum.filmorate.service;
 
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.exception.GenreUnknownException;
 import ru.yandex.practicum.filmorate.model.Genre;
@@ -11,18 +11,26 @@ import java.util.List;
 
 @Slf4j
 @Service
+@RequiredArgsConstructor
 public class GenreService {
     private final GenreStorage genreStorage;
 
-    @Autowired
-    public GenreService(GenreStorage genreStorage) {
-        this.genreStorage = genreStorage;
-    }
-
+    /**
+     * Метод получения всех жанров
+     *
+     * @return Список жанров
+     */
     public List<Genre> getAllGenres() {
+        log.debug("Получен запрос на список GENRE ");
         return genreStorage.getAllGenres();
     }
 
+    /**
+     * Метод получения названия жанра по id
+     *
+     * @param id id жанра
+     * @return Объект жанра
+     */
     public Genre getGenreById(int id) {
         if (genreStorage.getGenreById(id) != null) {
             log.debug("Получен запрос на поиск GENRE с ID " + id);

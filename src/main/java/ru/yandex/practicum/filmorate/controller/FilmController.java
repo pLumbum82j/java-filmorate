@@ -1,13 +1,11 @@
 package ru.yandex.practicum.filmorate.controller;
 
-import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.filmorate.model.Film;
-import ru.yandex.practicum.filmorate.service.FilmDbService;
 import ru.yandex.practicum.filmorate.service.FilmService;
 
 import javax.validation.Valid;
-import java.sql.SQLException;
 import java.util.List;
 
 import static ru.yandex.practicum.filmorate.Constants.DESCENDING_ORDER;
@@ -16,11 +14,14 @@ import static ru.yandex.practicum.filmorate.Constants.DESCENDING_ORDER;
  * Класс Контроллер по энпоинту Films
  */
 @RestController
-@RequiredArgsConstructor
 @RequestMapping("/films")
 public class FilmController {
 
-   private final FilmDbService filmDbService;
+    private final FilmService filmService;
+
+    public FilmController(@Qualifier("filmDbService") FilmService filmService) {
+        this.filmService = filmService;
+    }
 
     /**
      * Метод (эндпоинт) получения списка фильмов
@@ -29,7 +30,7 @@ public class FilmController {
      */
     @GetMapping()
     public List<Film> getFilms() {
-        return filmDbService.getAllFilms();
+        return filmService.getFilms();
     }
 
     /**
@@ -37,13 +38,13 @@ public class FilmController {
      *
      * @param count количество фильмов в списке
      * @param sort  сортировка по убыванию/возрастанию like
-     * @return Список филмьов
+     * @return Список фильмов
      */
     @GetMapping("/popular")
     public List<Film> getPopularFilms(
             @RequestParam(value = "count", defaultValue = "10") Integer count,
             @RequestParam(value = "sort", defaultValue = DESCENDING_ORDER) String sort) {
-        return filmDbService.getPopularFilms(count, sort);
+        return filmService.getPopularFilms(count, sort);
     }
 
     /**
@@ -54,7 +55,7 @@ public class FilmController {
      */
     @GetMapping("/{id}")
     public Film getFilmById(@PathVariable("id") Long id) {
-        return filmDbService.findFilmById(id);
+        return filmService.findFilmById(id);
     }
 
     /**
@@ -64,8 +65,8 @@ public class FilmController {
      * @return созданный объект фильма
      */
     @PostMapping
-    public Film create(@RequestBody @Valid Film film) throws SQLException {
-        return filmDbService.create(film);
+    public Film create(@RequestBody @Valid Film film) {
+        return filmService.create(film);
     }
 
     /**
@@ -77,7 +78,7 @@ public class FilmController {
      */
     @PutMapping("/{id}/like/{userId}")
     public Film addLike(@PathVariable Long id, @PathVariable Long userId) {
-        return filmDbService.addLike(id, userId);
+        return filmService.addLike(id, userId);
     }
 
     /**
@@ -87,8 +88,8 @@ public class FilmController {
      * @return изменённый объект фильма
      */
     @PutMapping()
-    public Film update(@Valid @RequestBody Film film) throws SQLException {
-        return filmDbService.update(film);
+    public Film update(@Valid @RequestBody Film film) {
+        return filmService.update(film);
     }
 
     /**
@@ -100,7 +101,6 @@ public class FilmController {
      */
     @DeleteMapping("/{id}/like/{userId}")
     public Film deleteLike(@PathVariable Long id, @PathVariable Long userId) {
-        return filmDbService.deleteLike(id, userId);
+        return filmService.deleteLike(id, userId);
     }
-
 }

@@ -19,21 +19,32 @@ public class User {
     private LocalDate birthday;
     private final Set<Long> friendsList = new HashSet<>();
 
+    /**
+     * Статический метод создания объекта User
+     *
+     * @param rs Данные SQL результата
+     * @return Объект User
+     */
+    public static User makeUser(ResultSet rs) {
+        User user;
+        try {
+            long id = rs.getLong("USER_ID");
+            String email = rs.getString("EMAIL");
+            String login = rs.getString("LOGIN");
+            String name = rs.getString("NAME");
+            LocalDate birthday = rs.getDate("BIRTHDAY").toLocalDate();
 
-    public static User makeUser(ResultSet rs) throws SQLException {
-        long id = rs.getLong("USER_ID");
-        String email = rs.getString("EMAIL");
-        String login = rs.getString("LOGIN");
-        String name = rs.getString("NAME");
-        LocalDate birthday =  rs.getDate("BIRTHDAY").toLocalDate();
-
-        return User.builder()
-                .id(id)
-                .email(email)
-                .login(login)
-                .name(name)
-                .birthday(birthday)
-                .build();
+            user = User.builder()
+                    .id(id)
+                    .email(email)
+                    .login(login)
+                    .name(name)
+                    .birthday(birthday)
+                    .build();
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+        return user;
     }
 }
 

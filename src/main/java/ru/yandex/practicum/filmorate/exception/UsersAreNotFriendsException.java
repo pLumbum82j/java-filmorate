@@ -1,7 +1,7 @@
 package ru.yandex.practicum.filmorate.exception;
 
 /**
- * Класс собственного исключения где пользователи не друзья
+ * Класс собственного исключения, где пользователи не друзья
  */
 public class UsersAreNotFriendsException extends RuntimeException {
 

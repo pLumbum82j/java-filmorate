@@ -1,5 +1,6 @@
 package ru.yandex.practicum.filmorate.storage.mpa;
 
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.rowset.SqlRowSet;
@@ -9,14 +10,9 @@ import ru.yandex.practicum.filmorate.model.Mpa;
 import java.util.List;
 
 @Repository
+@RequiredArgsConstructor
 public class MpaDbStorage implements MpaStorage {
     private final JdbcTemplate jdbcTemplate;
-
-    @Autowired
-    public MpaDbStorage(JdbcTemplate jdbcTemplate) {
-        this.jdbcTemplate = jdbcTemplate;
-    }
-
 
     public List<Mpa> getAllMpa() {
         String sqlQuery = "SELECT * FROM MPA";
@@ -26,7 +22,6 @@ public class MpaDbStorage implements MpaStorage {
                         rs.getString("NAME")));
 
 }
-
 
     public Mpa getMpaById(int id) {
         String sqlQuery = "SELECT * FROM MPA WHERE MPA_ID = ?";
