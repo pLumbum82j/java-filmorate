@@ -55,6 +55,7 @@ public class FilmDbService implements FilmService {
         if ((findFilm = filmStorage.findFilmById(id)) == null) {
             throw new FilmUnknownException("Фильм с ID " + id + " не существует");
         }
+        log.debug("Получен запрос на поиск фильма по ID {}", id);
         return findFilm;
     }
 

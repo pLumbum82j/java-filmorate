@@ -48,7 +48,7 @@ public class FilmDbStorage implements FilmStorage {
     public Map<Long, Film> getFilms() {
         Map<Long, Film> result = new HashMap<>();
         String sqlQuery = "SELECT F.*, M.NAME AS MNAME FROM FILMS F JOIN MPA M ON F.MPA_ID = M.MPA_ID";
-        List<Film> filmLists = jdbcTemplate.query(sqlQuery, (rs, rowNum) -> makeFilm(rs, rowNum));
+        List<Film> filmLists = jdbcTemplate.query(sqlQuery, (rs, rowNum) -> makeFilm(rs));
         for (Film film : filmLists) {
             result.put(film.getId(), film);
         }
@@ -81,7 +81,7 @@ public class FilmDbStorage implements FilmStorage {
                 "SELECT F.*,M.NAME as MNAME FROM FILMS F JOIN MPA M ON F.MPA_ID = M.MPA_ID ");
         sqlQuery.append("ORDER BY LIKE_AMOUT ").append(sort);
         sqlQuery.append(" LIMIT ").append(count);
-        List<Film> filmLists = jdbcTemplate.query(sqlQuery.toString(), (rs, rowNum) -> makeFilm(rs, rowNum));
+        List<Film> filmLists = jdbcTemplate.query(sqlQuery.toString(), (rs, rowNum) -> makeFilm(rs));
         return filmLists;
     }
 
@@ -169,10 +169,9 @@ public class FilmDbStorage implements FilmStorage {
      * Метод создания объекта Film
      *
      * @param rs     Данные SQL запроса
-     * @param rowNum
      * @return Объект Film
      */
-    private Film makeFilm(ResultSet rs, int rowNum) {
+    private Film makeFilm(ResultSet rs) {
         Film film;
         try {
             film = Film.builder()
