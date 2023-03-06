@@ -31,6 +31,7 @@ public class Film {
     private final Set<Long> likes = new HashSet<>();
     private Mpa mpa;
     private List<Genre> genres;
+    private Long likeAmout;
 }
 
 

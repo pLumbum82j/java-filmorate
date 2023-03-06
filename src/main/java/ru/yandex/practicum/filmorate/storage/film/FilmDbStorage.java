@@ -1,18 +1,13 @@
 package ru.yandex.practicum.filmorate.storage.film;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
 import org.springframework.jdbc.support.rowset.SqlRowSet;
 import org.springframework.stereotype.Repository;
-import ru.yandex.practicum.filmorate.exception.FilmUnknownException;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.Genre;
 import ru.yandex.practicum.filmorate.model.Mpa;
-import ru.yandex.practicum.filmorate.storage.genre.GenreStorage;
-import ru.yandex.practicum.filmorate.storage.like.LikeStorage;
-import ru.yandex.practicum.filmorate.storage.mpa.MpaStorage;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -26,19 +21,10 @@ public class FilmDbStorage implements FilmStorage {
 
     private final JdbcTemplate jdbcTemplate;
     private final SimpleJdbcInsert insertIntoFilm;
-    private final MpaStorage mpaStorage;
-    private final GenreStorage genreStorage;
-    private final LikeStorage likeStorage;
 
     @Autowired
-    public FilmDbStorage(JdbcTemplate jdbcTemplate,
-                         MpaStorage mpaStorage,
-                         GenreStorage genreStorage,
-                         LikeStorage likeStorage) {
+    public FilmDbStorage(JdbcTemplate jdbcTemplate) {
         this.jdbcTemplate = jdbcTemplate;
-        this.mpaStorage = mpaStorage;
-        this.genreStorage = genreStorage;
-        this.likeStorage = likeStorage;
         insertIntoFilm = new SimpleJdbcInsert(this.jdbcTemplate)
                 .withTableName("FILMS")
                 .usingGeneratedKeyColumns("FILM_ID");
@@ -70,6 +56,7 @@ public class FilmDbStorage implements FilmStorage {
             film.setMpa(new Mpa(filmRows.getInt("MPA_ID"), (filmRows.getString("MNAME"))));
             film.setRate(filmRows.getInt("RATE"));
             film.setGenres(getGenreByFilmId(filmRows.getLong("FILM_ID")));
+            film.setLikeAmout(filmRows.getLong("LIKE_AMOUT"));
             return film;
         }
         return null;
@@ -94,10 +81,8 @@ public class FilmDbStorage implements FilmStorage {
         parameters.put("DURATION", film.getDuration());
         parameters.put("RATE", film.getRate());
         parameters.put("MPA_ID", film.getMpa().getId());
+        parameters.put("LIKE_AMOUT", 0);
         Long filmId = (Long) insertIntoFilm.executeAndReturnKey(parameters);
-        if (film.getGenres() != null) {
-            addGenresByFilmId(filmId, film.getGenres());
-        }
         return findFilmById(filmId);
     }
 
@@ -114,10 +99,6 @@ public class FilmDbStorage implements FilmStorage {
                 film.getRate(),
                 film.getMpa().getId(),
                 film.getId()) > 0) {
-            deleteGenresByFilmId(film.getId());
-            if (film.getGenres() != null) {
-                addGenresByFilmId(film.getId(), film.getGenres());
-            }
             return findFilmById(film.getId());
         }
 
@@ -146,29 +127,9 @@ public class FilmDbStorage implements FilmStorage {
     }
 
     /**
-     * Метод добавления жанра по id фильма
-     *
-     * @param filmId id фильма
-     * @param genres Список жанров
-     */
-    public void addGenresByFilmId(long filmId, List<Genre> genres) {
-        for (Genre genre : genres) {
-            String sqlQuery = "MERGE INTO GENRE_REG G USING (VALUES (?,?)) S(GENRE_ID, FILM_ID) " +
-                    "ON G.GENRE_ID = S.GENRE_ID AND G.FILM_ID = S.FILM_ID " +
-                    "WHEN NOT MATCHED THEN INSERT (GENRE_ID, FILM_ID) VALUES (S.GENRE_ID, S.FILM_ID) ";
-            try {
-                jdbcTemplate.update(sqlQuery, genre.getId(), filmId);
-            } catch (DataIntegrityViolationException e) {
-                throw new FilmUnknownException(
-                        String.format("Фильм с идентификатором %d .", filmId));
-            }
-        }
-    }
-
-    /**
      * Метод создания объекта Film
      *
-     * @param rs     Данные SQL запроса
+     * @param rs Данные SQL запроса
      * @return Объект Film
      */
     private Film makeFilm(ResultSet rs) {
@@ -182,6 +143,7 @@ public class FilmDbStorage implements FilmStorage {
                     .duration(rs.getLong("DURATION"))
                     .mpa(new Mpa(rs.getInt("MPA_ID"), rs.getString("MNAME")))
                     .rate(rs.getInt("RATE"))
+                    .likeAmout(rs.getLong("LIKE_AMOUT"))
                     .genres(getGenreByFilmId(rs.getLong("FILM_ID")))
                     .build();
         } catch (SQLException e) {
@@ -189,16 +151,4 @@ public class FilmDbStorage implements FilmStorage {
         }
         return film;
     }
-
-    /**
-     * Метод удаления жанра по id фильма
-     *
-     * @param filmId id фильма
-     */
-    public void deleteGenresByFilmId(long filmId) {
-        String sqlQuery = "DELETE FROM GENRE_REG WHERE FILM_ID = ?";
-        jdbcTemplate.update(sqlQuery, filmId);
-    }
-
-
 }

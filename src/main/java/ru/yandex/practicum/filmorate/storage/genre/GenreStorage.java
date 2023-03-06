@@ -20,4 +20,19 @@ public interface GenreStorage {
      * @return Объект жанра
      */
     Genre getGenreById(int id);
+
+    /**
+     * Метод добавления жанра по id фильма
+     *
+     * @param filmId id фильма
+     * @param genres Список жанров
+     */
+    void addGenresByFilmId(long filmId, List<Genre> genres);
+
+    /**
+     * Метод удаления жанра по id фильма
+     *
+     * @param filmId id фильма
+     */
+    void deleteGenresByFilmId(long filmId);
 }

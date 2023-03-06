@@ -9,6 +9,7 @@ import ru.yandex.practicum.filmorate.exception.UpdateFilmUnknownException;
 import ru.yandex.practicum.filmorate.exception.UserUnknownException;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.storage.film.FilmStorage;
+import ru.yandex.practicum.filmorate.storage.genre.GenreStorage;
 import ru.yandex.practicum.filmorate.storage.like.LikeStorage;
 import ru.yandex.practicum.filmorate.storage.user.UserStorage;
 
@@ -23,13 +24,17 @@ public class FilmDbService implements FilmService {
     private final FilmStorage filmStorage;
     private final UserStorage userStorage;
     private final LikeStorage likeStorage;
+    private final GenreStorage genreStorage;
+
 
     public FilmDbService(@Qualifier("filmDbStorage") FilmStorage filmStorage,
                          @Qualifier("userDbStorage") UserStorage userStorage,
-                         LikeStorage likeStorage) {
+                         LikeStorage likeStorage, GenreStorage genreStorage) {
         this.filmStorage = filmStorage;
         this.userStorage = userStorage;
         this.likeStorage = likeStorage;
+        this.genreStorage = genreStorage;
+
     }
 
     @Override
@@ -62,8 +67,11 @@ public class FilmDbService implements FilmService {
     @Override
     public Film create(Film film) {
         Film resultFilm = filmStorage.create(film);
+        if (film.getGenres() != null) {
+            genreStorage.addGenresByFilmId(resultFilm.getId(), film.getGenres());
+        }
         log.debug("Фильм {} создан", film.getName());
-        return resultFilm;
+        return filmStorage.findFilmById(resultFilm.getId());
     }
 
     @Override
@@ -79,7 +87,11 @@ public class FilmDbService implements FilmService {
         if (filmStorage.findFilmById(film.getId()) != null) {
             log.debug("Получен запрос на обновление Фильма с ID " + film.getId());
             Film updateFilm = filmStorage.update(film);
-            return updateFilm;
+            genreStorage.deleteGenresByFilmId(updateFilm.getId());
+            if (film.getGenres() != null) {
+                genreStorage.addGenresByFilmId(updateFilm.getId(), film.getGenres());
+            }
+            return filmStorage.findFilmById(updateFilm.getId());
         } else {
             throw new UpdateFilmUnknownException("Фильм с ID " + film.getId() + " не найден");
         }
