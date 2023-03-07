@@ -23,18 +23,8 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 @RequiredArgsConstructor(onConstructor_ = @Autowired)
 @Sql({"/schema.sql", "/data.sql"})
 public class UserTestDbStorage {
-    private final FilmDbService filmDbService;
     private final UserDbService userDbService;
 
-    Film testFilm = Film.builder()
-            .id(1L)
-            .name("Интерстеллар")
-            .description("Следующий шаг человечества станет величайшим")
-            .duration(169)
-            .releaseDate(LocalDate.of(2014, 05, 21))
-            .mpa(new Mpa(1, "G"))
-            //.genres()
-            .build();
     User testUser = User.builder()
             .id(1L)
             .email("dino@yandex.ru")
@@ -68,7 +58,7 @@ public class UserTestDbStorage {
     }
 
     @Test
-    public void shouldUpdateFilm() {
+    public void shouldUpdateUser() {
         userDbService.create(testUser);
         testUser.setName("Григорий");
         testUser.setLogin("Пуля");
@@ -90,4 +80,71 @@ public class UserTestDbStorage {
         assertEquals(resultList, checkList);
         assertEquals(resultList.size(),checkList.size());
     }
+
+    @Test
+    public void shouldAddFriendToUser(){
+        User testUser2 = User.builder()
+                .id(2L)
+                .email("zoozavvr@yandex.ru")
+                .login("Tirexxx")
+                .name("Olga")
+                .birthday(LocalDate.of(2011, 1, 2))
+                .build();
+        userDbService.create(testUser);
+        userDbService.create(testUser2);
+
+        userDbService.addFriend(testUser.getId(), testUser2.getId());
+        List<User> resultUser = userDbService.getUserFriends(testUser.getId());
+
+        assertEquals(resultUser.get(0), testUser2);
+        assertEquals(resultUser.size(), 1);
+    }
+
+    @Test
+    public void shouldDeleteFriendToUser(){
+        User testUser2 = User.builder()
+                .id(2L)
+                .email("zoozavvr@yandex.ru")
+                .login("Tirexxx")
+                .name("Olga")
+                .birthday(LocalDate.of(2011, 1, 2))
+                .build();
+        userDbService.create(testUser);
+        userDbService.create(testUser2);
+        userDbService.addFriend(testUser.getId(), testUser2.getId());
+
+        userDbService.deleteFriend(testUser.getId(), testUser2.getId());
+        List<User> resultUser = userDbService.getUserFriends(testUser.getId());
+
+        assertEquals(resultUser.size(), 0);
+    }
+
+    @Test
+    public void shouldGetListOfCommonFriends(){
+        User testUser2 = User.builder()
+                .id(2L)
+                .email("zoozavvr@yandex.ru")
+                .login("Tirexxx")
+                .name("Olga")
+                .birthday(LocalDate.of(2011, 1, 2))
+                .build();
+        User testUser3 = User.builder()
+                .id(3L)
+                .email("parus@yandex.ru")
+                .login("Totoshka")
+                .name("Sergey")
+                .birthday(LocalDate.of(2001, 5, 5))
+                .build();
+        userDbService.create(testUser);
+        userDbService.create(testUser2);
+        userDbService.create(testUser3);
+        userDbService.addFriend(testUser.getId(), testUser3.getId());
+        userDbService.addFriend(testUser2.getId(), testUser3.getId());
+
+        List<User> resultList = userDbService.getListOfCommonFriends(testUser.getId(), testUser2.getId());
+
+        assertEquals(resultList.size(), 1);
+        assertEquals(resultList.get(0), testUser3);
+    }
+
 }

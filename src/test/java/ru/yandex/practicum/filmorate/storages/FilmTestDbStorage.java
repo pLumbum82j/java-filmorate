@@ -14,6 +14,7 @@ import ru.yandex.practicum.filmorate.service.FilmDbService;
 import ru.yandex.practicum.filmorate.service.UserDbService;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -65,8 +66,17 @@ public class FilmTestDbStorage {
         assertEquals(resultFilm.getDuration(), testFilm.getDuration());
         assertEquals(resultFilm.getReleaseDate(), testFilm.getReleaseDate());
         assertEquals(resultFilm.getMpa(), testFilm.getMpa());
+    }
 
+    @Test
+    public void shouldGetListFilms() {
+        filmDbService.create(testFilm);
+        List<Film> checkList = new ArrayList<>();
+        checkList.add(testFilm);
 
+        List<Film> resultList = filmDbService.getFilms();
+
+        assertEquals(resultList.size(),checkList.size());
     }
 
     @Test
@@ -118,10 +128,12 @@ public class FilmTestDbStorage {
         filmDbService.create(testFilm);
         testFilm.setName("АВАТАР");
         testFilm.setDuration(111);
+        testFilm.setGenres(List.of(new Genre(2, "Драма")));
 
         Film resultFilm = filmDbService.update(testFilm);
 
         assertEquals(testFilm.getName(), resultFilm.getName());
         assertEquals(testFilm.getDuration(), resultFilm.getDuration());
+        assertEquals(testFilm.getGenres(), resultFilm.getGenres());
     }
 }
