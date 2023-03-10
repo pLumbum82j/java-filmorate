@@ -1,6 +1,6 @@
 package ru.yandex.practicum.filmorate.controller;
 
-import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.service.UserService;
@@ -11,11 +11,14 @@ import java.util.List;
  * Класс Контроллер по энпоинту Users
  */
 @RestController
-@RequiredArgsConstructor
 @RequestMapping("/users")
 public class UserController {
 
     private final UserService userService;
+
+    public UserController(@Qualifier("userDbService") UserService userService) {
+        this.userService = userService;
+    }
 
     /**
      * Метод (эндпоинт) получения списка пользователей

@@ -2,6 +2,7 @@ package ru.yandex.practicum.filmorate.model;
 
 import lombok.Builder;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import ru.yandex.practicum.filmorate.validator.MovieBirthday;
 
 import javax.validation.constraints.Min;
@@ -9,6 +10,7 @@ import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.Size;
 import java.time.LocalDate;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 import static ru.yandex.practicum.filmorate.Constants.FIRST_RELEASE;
@@ -26,5 +28,11 @@ public class Film {
     private LocalDate releaseDate;
     @Min(value = 1, message = "Продолжительность фильма нулевая или отрицательная")
     private long duration;
+    private int rate;
     private final Set<Long> likes = new HashSet<>();
+    private Mpa mpa;
+    private List<Genre> genres;
+    private Long likeAmout;
 }
+
+

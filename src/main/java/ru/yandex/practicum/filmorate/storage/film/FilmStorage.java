@@ -2,10 +2,12 @@ package ru.yandex.practicum.filmorate.storage.film;
 
 import ru.yandex.practicum.filmorate.model.Film;
 
+import java.sql.SQLException;
+import java.util.List;
 import java.util.Map;
 
 /**
- * Интерфейс отвечаюзий за поведение объектов Film в памяти
+ * Интерфейс отвечающий за поведение объектов Film в памяти
  */
 public interface FilmStorage {
 
@@ -39,4 +41,13 @@ public interface FilmStorage {
      * @return изменённый объект фильма
      */
     Film update(Film film);
+
+    /**
+     * Метод получения списка популярных фильмов
+     *
+     * @param count количество фильмов в списке
+     * @param sort  сортировка по убыванию/возрастанию like
+     * @return Список фильмов
+     */
+    List<Film> getPopularFilms(Integer count, String sort);
 }

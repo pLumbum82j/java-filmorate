@@ -1,25 +1,10 @@
-package ru.yandex.practicum.filmorate.service;
+package ru.yandex.practicum.filmorate.storage.friend;
 
 import ru.yandex.practicum.filmorate.model.User;
 
 import java.util.List;
 
-public interface UserService {
-
-    /**
-     * Метод получения списка пользователей
-     *
-     * @return Список пользователей
-     */
-    List<User> getUsers();
-
-    /**
-     * Метод получения пользователя по id
-     *
-     * @param id id пользователя
-     * @return объект пользователя
-     */
-    User findUserById(Long id);
+public interface FriendStorage {
 
     /**
      * Метод получения списка друзей пользователя по id
@@ -27,7 +12,7 @@ public interface UserService {
      * @param id id пользователя
      * @return список друзей пользователя
      */
-    List<User> getUserFriends(Long id);
+    List<User> getUserFriends(long id);
 
     /**
      * Метод получения списка общих друзей двух пользователей по id
@@ -39,28 +24,12 @@ public interface UserService {
     List<User> getListOfCommonFriends(long firstId, long secondId);
 
     /**
-     * Метод создания пользователя
-     *
-     * @param user Принятый объект пользователя по эндпоинту
-     * @return созданный объект пользователя
-     */
-    User create(User user);
-
-    /**
-     * Метод обновления пользователя
-     *
-     * @param user Принятый объект пользователя по эндпоинту
-     * @return изменённый объект пользователя
-     */
-    User update(User user);
-
-    /**
      * Метод добавления пользователя в друзья
      *
      * @param firstId  id первого пользователя
      * @param secondId id второго пользователя
      */
-    void addFriend(Long firstId, Long secondId);
+    void addFriends(long firstId, long secondId);
 
     /**
      * Метод удаления пользователя из друзей
@@ -68,5 +37,6 @@ public interface UserService {
      * @param firstId  id первого пользователя
      * @param secondId id второго пользователя
      */
-    void deleteFriend(Long firstId, Long secondId);
+    void deleteFriends(long firstId, long secondId);
+
 }

@@ -1,6 +1,6 @@
 package ru.yandex.practicum.filmorate.controller;
 
-import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.service.FilmService;
@@ -14,11 +14,14 @@ import static ru.yandex.practicum.filmorate.Constants.DESCENDING_ORDER;
  * Класс Контроллер по энпоинту Films
  */
 @RestController
-@RequiredArgsConstructor
 @RequestMapping("/films")
 public class FilmController {
 
-   private final FilmService filmService;
+    private final FilmService filmService;
+
+    public FilmController(@Qualifier("filmDbService") FilmService filmService) {
+        this.filmService = filmService;
+    }
 
     /**
      * Метод (эндпоинт) получения списка фильмов
@@ -35,7 +38,7 @@ public class FilmController {
      *
      * @param count количество фильмов в списке
      * @param sort  сортировка по убыванию/возрастанию like
-     * @return Список филмьов
+     * @return Список фильмов
      */
     @GetMapping("/popular")
     public List<Film> getPopularFilms(
@@ -61,8 +64,8 @@ public class FilmController {
      * @param film принятый объект фильма по эндпоинту
      * @return созданный объект фильма
      */
-    @PostMapping()
-    public Film create(@Valid @RequestBody Film film) {
+    @PostMapping
+    public Film create(@RequestBody @Valid Film film) {
         return filmService.create(film);
     }
 
@@ -100,5 +103,4 @@ public class FilmController {
     public Film deleteLike(@PathVariable Long id, @PathVariable Long userId) {
         return filmService.deleteLike(id, userId);
     }
-
 }

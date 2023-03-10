@@ -1,4 +1,4 @@
-package ru.yandex.practicum.filmorate.controller;
+package ru.yandex.practicum.filmorate.exception;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -62,6 +62,33 @@ public class ErrorHandler {
 
     @ExceptionHandler
     @ResponseStatus(HttpStatus.NOT_FOUND) //404
+    public ErrorResponse handlePostNotFoundException(final MpaUnknownException e) {
+        log.warn(e.getMessage());
+        return new ErrorResponse(
+                e.getMessage()
+        );
+    }
+
+    @ExceptionHandler
+    @ResponseStatus(HttpStatus.NOT_FOUND) //404
+    public ErrorResponse handlePostNotFoundException(final GenreUnknownException e) {
+        log.warn(e.getMessage());
+        return new ErrorResponse(
+                e.getMessage()
+        );
+    }
+
+    @ExceptionHandler
+    @ResponseStatus(HttpStatus.NOT_FOUND) //404
+    public ErrorResponse handlePostNotFoundException(final UpdateFilmUnknownException e) {
+        log.warn(e.getMessage());
+        return new ErrorResponse(
+                e.getMessage()
+        );
+    }
+
+    @ExceptionHandler
+    @ResponseStatus(HttpStatus.NOT_FOUND) //404
     public ErrorResponse handlePostNotFoundException(final FilmUnknownException e) {
         log.warn(e.getMessage());
         return new ErrorResponse(
@@ -75,7 +102,7 @@ public class ErrorHandler {
     public ErrorResponse handleThrowable(final Throwable e) {
         log.warn("Произошла непредвиденная ошибка.");
         return new ErrorResponse(
-                "Произошла непредвиденная ошибка."
+                e.getMessage()
         );
     }
 }
